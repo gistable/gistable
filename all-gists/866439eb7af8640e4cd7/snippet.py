@@ -1,0 +1,1 @@
+print(eval(input('Please enter your arithmetic expression :' )))

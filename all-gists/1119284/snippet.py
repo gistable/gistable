@@ -1,0 +1,1 @@
+python -c "from random import choice; print ''.join([choice('abcdefghijklmnopqrstuvwxyz0123456789%^*(-_=+)') for i in range(32)])"

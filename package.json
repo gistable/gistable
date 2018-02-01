@@ -1,0 +1,32 @@
+{
+  "name": "gistable",
+  "version": "1.0.0",
+  "description": "A collection of GitHub gists and dockerfiles.",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gistable/gistable.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Gist",
+    "Gistable",
+    "Python",
+    "Docker"
+  ],
+  "author": "gistable",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/gistable/gistable/issues"
+  },
+  "homepage": "https://github.com/gistable/gistable#readme",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "lodash": "^4.17.4",
+    "yargs": "^11.0.0"
+  }
+}

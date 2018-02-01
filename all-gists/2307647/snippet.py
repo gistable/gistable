@@ -1,0 +1,15 @@
+def run_pg_fouine():
+    info = host_info[env.host_string]
+    db_name = info.tags.get('Name')
+    sudo('perl -pi -e "s/log_min_duration_statement = .*/log_min_duration_statement = 0/" /etc/postgresql/9.*/main/postgresql.conf')
+    sudo('/etc/init.d/postgresql reload')
+    time.sleep(30)
+    sudo('perl -pi -e "s/log_min_duration_statement = .*/log_min_duration_statement = 500/" /etc/postgresql/9.*/main/postgresql.conf')
+    sudo('/etc/init.d/postgresql reload')
+    run('tail -n 100000 /var/log/postgresql/postgresql-9.*-main.log > /tmp/pgfouine.txt')
+    run('gzip -f /tmp/pgfouine.txt')
+    get('/tmp/pgfouine.txt.gz', local_path = '/tmp/latest-pgfouine.txt.gz')
+    local('gunzip -f /tmp/latest-pgfouine.txt.gz')
+    now = int(time.time())
+    local('~/src/pgfouine/pgfouine.php -logtype stderr -file /tmp/latest-pgfouine.txt -quiet > /tmp/pgfouine-%s-%d.html 2>1' % (db_name, now))
+    local('open /tmp/pgfouine-%s-%d.html' % (db_name, now) )

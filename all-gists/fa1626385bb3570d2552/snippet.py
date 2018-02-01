@@ -1,0 +1,1 @@
+Please note this script has moved: https://github.com/EsotericSoftware/spine-scripts

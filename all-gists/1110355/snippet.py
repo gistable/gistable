@@ -1,0 +1,1 @@
+dict((k, v[0] if len(v) == 1 else v) for k, v in [(k, [z[1] for z in v]) for k, v in itertools.groupby(sorted([x.split('=') for x in qs.split('&')], key=lambda x: x[0]), key=lambda x: x[0])])

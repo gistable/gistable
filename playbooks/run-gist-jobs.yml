@@ -1,0 +1,61 @@
+---
+- hosts: nodes
+
+  tasks:
+
+  - include_vars: vars.yml
+
+  - name: Create Nomad Directories
+    file: path={{ item }} state=directory
+    with_items:
+    - "{{ nomad_dir }}"
+    - "{{ jobs_dir }}"
+    - "{{ scripts_dir }}"
+
+  - name: Copy Job Scripts
+    template: src=templates/{{ item }} dest={{ scripts_dir }}/{{ item }} mode=744
+    with_items:
+    - test_gist.py
+    - visitor.py
+    - GistDockerfile
+
+  - name: Pull Docker Registry Image
+    become: yes
+    docker_image: name=registry tag=2
+
+  - name: Create Local Registry
+    docker_container:
+      name: registry
+      image: registry:2
+      ports:
+      - "5000:5000"
+      restart_policy: always
+
+  - name: Build Gist Image
+    become: yes
+    command: docker build -t localhost:5000/gists -f GistDockerfile .
+    args:
+      chdir: "{{ scripts_dir }}"
+
+  - name: Push Gist Image to Local Registry
+    become: yes
+    command: docker push localhost:5000/gists
+
+- hosts: nomad1
+
+  tasks:
+
+  - include_vars: vars.yml
+
+  - name: Load Package Data
+    include_vars: file={{ gist_source }}
+
+  - name: Template Job Files
+    template: src=templates/gist.nomad dest={{ jobs_dir }}/{{ gist.split('/')[-1] }}.nomad
+    with_items: "{{ gists }}"
+    loop_control: { loop_var: gist }
+
+  - name: Start Jobs
+    command: nomad run -detach {{ jobs_dir }}/{{ gist.split('/')[-1] }}.nomad
+    with_items: "{{ gists }}"
+    loop_control: { loop_var: gist }

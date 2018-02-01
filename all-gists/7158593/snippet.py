@@ -1,0 +1,2 @@
+# -*- coding: utf-8 -*-
+import sys;print u"%s \nA: 그만하자.\nB:응." % "\n".join(map(lambda x: u"%s %s 내 맘도 몰라주는 바보!" % (("A:" if x%2==0 else "B:"), u"".join(map(lambda y: u"%s 을 모르는 " %  (u"내" if y%2==0 else u"네"), xrange(x, 2*x)))), xrange(0, int(sys.argv[1]))))

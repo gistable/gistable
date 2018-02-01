@@ -1,0 +1,1 @@
+print "\n".join([str(item) for item in map(lambda n: "Fizz" if type(n) is int and n % 3 == 0 else n, map(lambda n: "Buzz" if type(n) is int and n % 5 == 0 else n, map(lambda n: "FizzBuzz" if type(n) is int and n % 5 == 0 and n % 3 == 0 else n, [i for i in range(1, 101)])))])

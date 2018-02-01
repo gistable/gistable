@@ -1,0 +1,1 @@
+(?P<domain>https://.*twitter\\.com/)(?P<user>.+)/(?P<status>(status|statuses))/(?P<id>.+)

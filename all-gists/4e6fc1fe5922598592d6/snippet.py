@@ -1,0 +1,1 @@
+Moved to https://github.com/dbrgn/drf-dynamic-fields

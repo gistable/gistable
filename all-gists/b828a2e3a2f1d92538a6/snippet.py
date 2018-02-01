@@ -1,0 +1,1 @@
+=query(arrayformula(iferror(if(match(A:A,B:B,0)>0,""),A:A)),"select Col1 where Col1<>'' order by Col1")

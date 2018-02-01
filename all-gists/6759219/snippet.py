@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This script helps removing Git branches.
+# Run it from a git repo dir. It will open the Git branches list
+# in your favorite editor. Delete some branches from the list.
+# Save and close the file. The script applies the changes to the repo.
+
+from subprocess import call, Popen, PIPE
+from os import getenv
+import re
+
+# configure commands used in this script
+editor_command = getenv('EDITOR')
+branch_command = 'git branch -a'
+mktemp_command = 'mktemp'
+
+
+def is_remote(branch):
+    return branch.startswith('remotes/')
+
+
+# takes 'git branch' output and returns a set of branches
+def branches_to_list(text):
+    branches = set()
+    for branch in re.split('\n', text):
+        branch = re.sub(' .+', '', branch.lstrip());
+        if branch is not '':
+            branches.add(branch)
+    return branches
+
+
+# create a temp file
+tmp_file = Popen(mktemp_command, stdout=PIPE).communicate()[0].decode().rstrip()
+
+
+# write git branches to the temp file
+call('%s > %s' % (branch_command, tmp_file), shell=True)
+
+
+# get original branches
+original_branches = branches_to_list(open(tmp_file, 'r').read())
+
+
+# edit the temp file with the editor command
+call('%s %s' % (editor_command, tmp_file), shell=True)
+
+
+# get new branches
+new_branches = branches_to_list(open(tmp_file, 'r').read())
+
+
+# adding and renaming branches is not supported
+if(new_branches.difference(original_branches)):
+    exit('Aborting! Do not add or rename branches, just remove them.')
+
+
+# remove branches with Git
+for branch in original_branches.difference(new_branches):
+    if is_remote(branch):
+        branch = branch.lstrip('remotes/')
+        pushable = re.sub('/', ' :', branch)
+        call('git push %s' % pushable, shell=True)
+    else:
+        call('git branch -D %s' % branch, shell=True)

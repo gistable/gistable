@@ -1,0 +1,1 @@
+dict([[h.partition(':')[0], h.partition(':')[2]] for h in rawheaders.split('\n')])

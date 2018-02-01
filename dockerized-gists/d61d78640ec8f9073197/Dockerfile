@@ -1,0 +1,5 @@
+FROM python:2.7.13
+ADD snippet.py snippet.py
+RUN ["pip", "install", "twython"]
+RUN ["pip", "install", "unicodecsv"]
+CMD ["python", "snippet.py"]

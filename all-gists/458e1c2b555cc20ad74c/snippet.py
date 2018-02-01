@@ -1,0 +1,55 @@
+  from django.db import models
+  from wagtail.wagtailcore.models import Page
+  from wagtail.wagtailcore.fields import RichTextField
+  from wagtail.wagtailadmin.edit_handlers import FieldPanel, MultiFieldPanel
+  from wagtail.wagtailimages.edit_handlers import ImageChooserPanel
+  
+
+  class BaseFieldsMixin(models.Model):                                                                                                                                                                                                        
+      header_title = models.CharField(max_length=512, blank=True)                                                                                                                                                                             
+      header_slogan = models.CharField(max_length=512, blank=True)                                                                                                                                                                            
+      header_img = models.ForeignKey(                                                                                                                                                                                                         
+          'wagtailimages.Image',                                                                                                                                                                                                              
+          null=True,                                                                                                                                                                                                                          
+          blank=True,                                                                                                                                                                                                                         
+          on_delete=models.SET_NULL,                                                                                                                                                                                                          
+          related_name='+'                                                                                                                                                                                                                    
+      )                                                                                                                                                                                                                                       
+      hide_navigation = models.BooleanField(default=False)                                                                                                                                                                                    
+      footer_text = RichTextField(blank=True)                                                                                                                                                                                                 
+                                                                                                                                                                                                                                              
+      settings_panels = [                                                                                                                                                                                                                     
+          MultiFieldPanel([                                                                                                                                                                                                                   
+              FieldPanel('hide_navigation'),                                                                                                                                                                                                  
+          ] + Page.settings_panels, "Page settings"),                                                                                                                                                                                         
+      ]                                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                              
+      content_panels = [                                                                                                                                                                                                                      
+          MultiFieldPanel(                                                                                                                                                                                                                    
+              [                                                                                                                                                                                                                               
+                  FieldPanel('header_title', classname="full"),                                                                                                                                                                               
+                  FieldPanel('header_slogan', classname="full"),                                                                                                                                                                              
+                  ImageChooserPanel('header_img'),                                                                                                                                                                                            
+              ],                                                                                                                                                                                                                              
+              heading='Header elements', classname="collapsible collapsed"                                                                                                                                                                    
+          ),                                                                                                                                                                                                                                  
+          MultiFieldPanel(                                                                                                                                                                                                                    
+              [                                                                                                                                                                                                                               
+                  FieldPanel('footer_text', classname="full"),                                                                                                                                                                                
+              ],                                                                                                                                                                                                                              
+              heading='Footer elements', classname="collapsible collapsed"                                                                                                                                                                    
+          ),                                                                                                                                                                                                                                  
+          FieldPanel('title', classname="full title"),                                                                                                                                                                                        
+                                                                                                                                                                                                                                              
+      ]                                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                              
+      class Meta:                                                                                                                                                                                                                             
+          abstract = True                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                              
+  class UniversalStreamPage(Page, BaseFieldsMixin):                                                                                                                                                                                           
+      # page specific fields
+      settings_panels = BaseFieldsMixin.settings_panels                                                                                                                                                                                       
+      content_panels = BaseFieldsMixin.content_panels + [
+        # page specific fields
+      ]
