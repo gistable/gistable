@@ -1,0 +1,8 @@
+# Run me first, to make sure things have python2
+---
+- hosts: nodes
+  become: yes
+  gather_facts: no
+  tasks:
+  - name: Install python
+    raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)

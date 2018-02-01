@@ -1,0 +1,14 @@
+control ansible_host=192.168.33.10 ansible_user=ubuntu
+
+[nodes]
+nomad1 nomad_node_role=server nomad_iface=enp0s8 consul_node_role=bootstrap consul_iface=enp0s8 consul_client_address=192.168.33.11 ansible_host=192.168.33.11 ansible_user=vagrant ansible_ssh_private_key_file=/ssh/nomad1/virtualbox/private_key
+nomad2 nomad_node_role=client nomad_iface=enp0s8 consul_node_role=client consul_iface=enp0s8 consul_client_address=192.168.33.12 ansible_host=192.168.33.12 ansible_user=vagrant ansible_ssh_private_key_file=/ssh/nomad2/virtualbox/private_key
+nomad3 nomad_node_role=client nomad_iface=enp0s8 consul_node_role=client consul_iface=enp0s8 consul_client_address=192.168.33.13 ansible_host=192.168.33.13 ansible_user=vagrant ansible_ssh_private_key_file=/ssh/nomad3/virtualbox/private_key
+
+[nomad_instances]
+[nomad_instances:children]
+nodes
+
+[consul_instances]
+[consul_instances:children]
+nodes

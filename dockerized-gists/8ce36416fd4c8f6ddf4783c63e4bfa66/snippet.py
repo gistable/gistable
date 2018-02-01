@@ -1,0 +1,915 @@
+#!/usr/bin/env python
+'''
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+'''
+
+import argparse
+import urlparse
+import urllib2
+import urllib
+import hashlib
+import base64
+import hmac
+import json
+import sys
+import os
+import time
+import datetime
+import random
+import math
+import csv
+import re
+import codecs
+
+__version__     = '1.12'
+ALPHANUM        = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+FDAT_DIR    = 'fdat'
+IMG_DIR     = 'img'
+TT_EXT      = '.dat'
+FDAT_EXT    = '.f'
+FAV_EXT     = '.fav'
+TWT_EXT     = '.twt'
+FMAX        = 5000
+EDG_EXT     = '.gml' # Graph Modeling Language
+WAIT_CODES  = (400, 503, 429)
+RETRY_CODES = (500, 502, 110)
+SKIP_CODES  = (401, 403, 404)
+RL_WINDOW   = 15*60 # Rate limiting timeout
+SHAPES      = ['box', 'circle', 'rect', 'triangle-up', 'diamond', 'triangle-down']
+
+from collections import namedtuple
+Consumer = namedtuple('Consumer', 'key secret')
+Token = namedtuple('Token', 'key secret')
+
+def _quote(text):
+  return urllib.quote(text, '-._~')
+
+def _encode(params):
+  return '&'.join(['%s=%s' % (k, v) for k, v in params])
+
+def _parse_uri(req):
+  method = req.get_method()
+  if method == 'POST':
+    uri = req.get_full_url()
+    query = req.get_data() or ''
+  else:
+    url = req.get_full_url()
+    if url.find('?') != -1:
+      uri, query = req.get_full_url().split('?', 1)
+    else:
+      uri = url
+      query = ''
+  return method, uri, query
+
+class Request(urllib2.Request):
+  def __init__(self, url, \
+    data=None, headers={}, origin_req_host=None, unverifiable=False, \
+    method=None, oauth_params={}):
+    urllib2.Request.__init__( \
+      self, url, data, headers, origin_req_host, unverifiable)
+    self.method = method
+    self.oauth_params = oauth_params
+
+  def get_method(self):
+    if self.method is not None:
+      return self.method
+    if self.has_data():
+      return 'POST'
+    else:
+      return 'GET'
+
+class OAuthHandler(urllib2.BaseHandler):
+  def __init__(self, consumer, token=None, timeout=None):
+    self.consumer = consumer
+    self.token = token
+    self.timeout = timeout
+
+  def get_signature(self, method, uri, query):
+    key = '%s&' % _quote(self.consumer.secret)
+    if self.token is not None:
+      key += _quote(self.token.secret)
+    signature_base = '&'.join((method.upper(), _quote(uri), _quote(query)))
+    signature = hmac.new(str(key), signature_base, hashlib.sha1)
+    return base64.b64encode(signature.digest())
+
+  def http_request(self, req):
+    if not req.has_header('Host'):
+      req.add_header('Host', req.get_host())
+    method, uri, query = _parse_uri(req)
+    if method == 'POST':
+      req.add_header('Content-type', 'application/x-www-form-urlencoded')
+
+    query = map(lambda (k, v): (k, urllib.quote(v)), urlparse.parse_qsl(query))
+
+    oauth_params = [
+      ('oauth_consumer_key', self.consumer.key),
+      ('oauth_signature_method', 'HMAC-SHA1'),
+      ('oauth_timestamp', int(time.time())),
+      ('oauth_nonce', ''.join([random.choice(ALPHANUM) for i in range(16)])),
+      ('oauth_version', '1.0')]
+    if self.token is not None:
+      oauth_params.append(('oauth_token', self.token.key))
+    if hasattr(req, 'oauth_params'):
+      oauth_params += req.oauth_params.items()
+
+    query += oauth_params
+    query.sort()
+    signature = self.get_signature(method, uri, _encode(query))
+
+    oauth_params.append(('oauth_signature', _quote(signature)))
+    oauth_params.sort()
+
+    auth = ', '.join(['%s="%s"' % (k, v) for k, v in oauth_params])
+    req.headers['Authorization'] = 'OAuth ' + auth
+
+    req = Request(req.get_full_url(), \
+      data=req.get_data(), \
+      headers=req.headers, \
+      origin_req_host=req.get_origin_req_host(), \
+      unverifiable=req.is_unverifiable(), \
+      method=method)
+
+    req.timeout = self.timeout
+    return req
+
+  def https_request(self, req):
+    return self.http_request(req)
+
+def _replace_opener():
+  filename = os.path.dirname(os.path.abspath(__file__))+'/.'+os.path.basename(sys.argv[0])
+  if os.path.isfile(filename):
+    f = open(filename, 'r')
+    lines = f.readlines()
+    key = lines[0].strip()
+    secret = lines[1].strip()
+  else:
+    sys.stderr.write('''TWITTER API AUTHENTICATION SETUP
+(1) Open the following link in your browser and register this script...
+'>>> https://apps.twitter.com/\n''')
+    sys.stderr.write('What is its consumer key? ')
+    key = sys.stdin.readline().rstrip('\r\n')
+    sys.stderr.write('What is its consumer secret? ')
+    secret = sys.stdin.readline().rstrip('\r\n')
+    lines = [key, secret]
+  consumer = Consumer(key, secret)
+  try:
+    oauth = lines[2].strip()
+    oauth_secret = lines[3].strip()
+    atoken = Token(oauth, oauth_secret)
+  except IndexError:
+    opener = urllib2.build_opener(OAuthHandler(consumer))
+    resp = opener.open(Request('https://api.twitter.com/oauth/request_token'))
+    rtoken = urlparse.parse_qs(resp.read())
+    rtoken = Token(rtoken['oauth_token'][0], rtoken['oauth_token_secret'][0])
+    sys.stderr.write('''(2) Now, open this link and authorize the script...
+'>>> https://api.twitter.com/oauth/authorize?oauth_token=%s\n''' % rtoken.key)
+    sys.stderr.write('What is the PIN? ')
+    verifier = sys.stdin.readline().rstrip('\r\n')
+    opener = urllib2.build_opener(OAuthHandler(consumer, rtoken))
+    resp = opener.open( \
+      Request('https://api.twitter.com/oauth/access_token', \
+      oauth_params={'oauth_verifier': verifier}))
+    atoken = urlparse.parse_qs(resp.read())
+    atoken = Token(atoken['oauth_token'][0], atoken['oauth_token_secret'][0])
+    f = open(filename, 'w')
+    f.write(key+'\n')
+    f.write(secret+'\n')
+    f.write(atoken.key+'\n')
+    f.write(atoken.secret+'\n')
+    f.close()
+    sys.stderr.write('Setup complete and %s created.\n' % filename)
+  opener = urllib2.build_opener(OAuthHandler(consumer, atoken))
+  urllib2.install_opener(opener)
+
+def _fetch_img(user_id, avatar):
+  conn = urllib.urlopen(avatar)
+  data = conn.read()
+  info = conn.info().get('Content-Type').lower()
+  conn.close()
+  if not os.path.exists(IMG_DIR):
+    os.makedirs(IMG_DIR)
+  filename = IMG_DIR+'/'+str(user_id)
+  if info == 'image/gif':
+    filename += '.gif'
+  elif info == 'image/jpeg' or info == 'image/pjpeg':
+    filename += '.jpg'
+  elif info == 'image/png':
+    filename += '.png'
+  file = open(filename, 'wb')
+  file.write(data)
+  file.close()
+  return filename
+
+def resolve(args):
+  for sn in args.screen_name:
+    try:
+      if sn.isdigit():
+        url = 'https://api.twitter.com/1.1/users/show.json?user_id=%s'
+      else:
+        url = 'https://api.twitter.com/1.1/users/show.json?screen_name=%s'
+      conn = urllib2.urlopen(url % sn)
+    except urllib2.HTTPError, e:
+      if e.code in SKIP_CODES:
+        sys.stdout.write('HTTPError %s with %s. Skipping...\n' % (e.code, sn))
+        continue
+      else:
+        raise
+    data = json.loads(conn.read())
+    conn.close()
+    if sn.isdigit():
+      sys.stdout.write(data['screen_name']+' ')
+    else:
+      sys.stdout.write(data['id_str']+' ')
+    sys.stdout.write('(%s tweets | %s friends | %s followers | %s memberships)\n' % (\
+      data['statuses_count'], data['friends_count'], data['followers_count'], data['listed_count']))
+
+class CursorError(urllib2.HTTPError):
+  def __init__(self, code, cursor=None, res=None):
+    urllib2.HTTPError.__init__(self, None, code, None, None, None)
+    self.cursor = cursor
+    self.res = res
+
+# Results are given in groups of 5,000
+def _ids(relation, param, c=None, init=None):
+  res = init or []
+  cursor = c or -1
+  while True:
+    try:
+      url = 'https://api.twitter.com/1.1/%s/ids.json?%s&cursor=%s'
+      conn = urllib2.urlopen(url % (relation, param, cursor))
+    except urllib2.HTTPError, e:
+      raise CursorError(e.code, cursor, res)
+    data = json.loads(conn.read())
+    conn.close()
+    res = res + data['ids']
+    if data['next_cursor'] != 0:
+      cursor = data['next_cursor']
+    else:
+      break
+  return res
+
+def _members(param, c=None, init=None):
+  res = init or []
+  cursor = c or -1
+  while True:
+    try:
+      url = 'https://api.twitter.com/1.1/lists/members.json?%s&cursor=%s&include_entities=false&skip_status=true'
+      conn = urllib2.urlopen(url % (param, cursor))
+    except urllib2.HTTPError, e:
+      raise CursorError(e.code, cursor, res)
+    data = json.loads(conn.read())
+    conn.close()
+    for user in data['users']:
+      res.append(user['id'])
+    if data['next_cursor'] != 0:
+      cursor = data['next_cursor']
+    else:
+      break
+  return res
+
+def init(args):
+  if args.l:
+    type = args.l
+  else:
+    type = 'followers' if args.followers else 'friends'
+  if args.query:
+    bag = []
+    users = []
+    for tweet in open(args.screen_name+TWT_EXT):
+      handles = re.findall(r'@([\w]+)', tweet.lower())
+      if len(handles) > 0:
+        bag += handles
+        users.append(handles[0])
+    bag = list(set(bag))
+    users = list(set(users))
+  else:
+    cursor = res = None
+    while True:
+      try:
+        if args.l:
+          bag = _members('slug='+args.l+'&owner_screen_name='+args.screen_name, cursor, res)
+        else:
+          bag = [args.screen_name] + \
+            _ids(type, 'screen_name='+args.screen_name, cursor, res)
+        break
+      except CursorError, e:
+        if e.code in WAIT_CODES:
+          sys.stderr.write('HTTPError %s at %s. Waiting %sm to resume...' % \
+            (e.code, time.strftime('%H:%M', time.localtime()), RL_WINDOW/60))
+          time.sleep(RL_WINDOW+random.randint(10,60))
+          cursor = e.cursor
+          res = e.res
+          sys.stderr.write('\n')
+          continue
+        else:
+          raise
+  filename = args.screen_name+TT_EXT
+  if not args.force and os.path.isfile(filename):
+    f = open(filename, 'r+')
+    for item in csv.reader(f):
+      try:
+        bag.remove(item[1] if \
+          args.query or item[1] == args.screen_name else int(item[0]))
+      except:
+        continue
+  else:
+    f = open(filename, 'w')
+  while len(bag) > 0:
+    bagId = [x for x in bag if isinstance(x, int)]
+    bagName = [x for x in bag if isinstance(x, str)]
+    bag = []
+    while len(bagId) > 0 or len(bagName) > 0:
+      if len(bagId) > 99 or len(bagName) > 99:
+        items = []
+        while len(items) < 99:
+          if len(bagId) > 99:
+            items = [bagId.pop() for _i in xrange(100)]
+          else:
+            items = [bagName.pop() for _i in xrange(100)]
+      else:
+        items = bagId
+        bagId = []
+        if not items:
+          items = bagName
+          bagName = []
+      itemsstring = ','.join(map(str, items))
+      sys.stdout.write('Processing %s...\n' % itemsstring)
+      try:
+        if isinstance(items[0], str):
+          url = 'https://api.twitter.com/1.1/users/lookup.json?screen_name=%s&include_entities=false'
+        else:
+          url = 'https://api.twitter.com/1.1/users/lookup.json?user_id=%s&include_entities=false'
+        conn = urllib2.urlopen(url % itemsstring)
+      except urllib2.HTTPError, e:
+        if e.code in SKIP_CODES:
+          sys.stdout.write('HTTPError %s with %s. Skipping...\n' % (e.code, itemsstring))
+          continue
+        elif e.code in RETRY_CODES:
+          sys.stderr.write('HTTPError %s with %s. Deferred...' % (e.code, itemsstring))
+          sys.stderr.flush()
+          bag.append(itemsstring.split(','))
+          time.sleep(random.randint(10,60))
+          sys.stderr.write('\n')
+          continue
+        elif e.code in WAIT_CODES:
+          sys.stderr.write('HTTPError %s at %s. Waiting %sm to resume (%s items left)...' % (e.code, time.strftime('%H:%M', time.localtime()), RL_WINDOW/60, len(bag)+1))
+          sys.stderr.flush()
+          bag.append(itemsstring.split(','))
+          time.sleep(RL_WINDOW+random.randint(10,60))
+          sys.stderr.write('\n')
+          continue
+        else:
+          sys.stderr.write('\n')
+          raise
+      response = json.loads(conn.read())
+      conn.close()
+      for data in response:
+        user_id = data['id_str']
+        name = data['screen_name']
+        url = data['url'] if data['url'] is not None else ''
+        avatar = data['profile_image_url'] if data['profile_image_url'] is not None else ''
+        if avatar != '':
+          try:
+            avatar = _fetch_img(user_id, avatar)
+          except:
+            avatar = ''
+        location = data['location']
+        f.write(user_id+ \
+          ','+name+ \
+          ','+('mention' if args.query and name not in users else type)+ \
+          ','+str(data['friends_count'])+ \
+          ','+str(data['followers_count'])+ \
+          ','+str(data['listed_count'])+ \
+          ','+str(data['statuses_count'])+ \
+          ','+data['created_at']+ \
+          ','+url.encode('ascii', 'replace')+ \
+          ','+avatar+ \
+          ','+location.encode('ascii', 'replace').replace(',', ' ')+'\n')
+
+def _palette(rng):
+  import colorsys
+  HSV_tuples = [(t*1.0/rng, 0.75, 1.0) for t in range(rng)]
+  return map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
+
+def _draw(args):
+  import igraph
+  g = igraph.load('_'.join(args.screen_name)+EDG_EXT)
+  sys.stdout.write('%s Handles\n%s Follow Relationships\n' % (g.vcount(), g.ecount()))
+  sys.stdout.write('Avg Shortest Path = %.6f\n' % g.average_path_length())
+  sys.stdout.write('In-Degree Distribution mean = %.6f, sd = %.6f\n' % (g.degree_distribution(mode=igraph.IN).mean, g.degree_distribution(mode=igraph.IN).sd))
+  sys.stdout.write('Clustering Coefficient = %.6f\n' % g.transitivity_undirected())
+  sys.stdout.write('Degree Assortativity = %.6f\n' % g.assortativity_degree())
+  width = height = int(750+g.vcount()*4.73-g.vcount()**2*1.55e-3)
+  comp = g.clusters(igraph.STRONG if args.strong else igraph.WEAK)
+  sys.stdout.write('Cluster Modularity = %.6f\n' % comp.modularity)
+  gc = comp.giant()
+  gc_size = gc.vcount()
+  sys.stdout.write('Fraction Handles in Giant Component = %.2f%%\n' % (100.0*gc_size/g.vcount()))
+  if len(args.screen_name) > 1 and not args.strong:
+    RGB_dict = dict(zip(SHAPES, _palette(len(SHAPES))))
+    for v in g.vs:
+      v['color'] = RGB_dict[v['shape']]
+  else:
+    for v in g.vs:
+      v['color'] = (.8, .8, .8)
+    if gc.ecount() > 0:
+      sys.stdout.write('GC Diameter %i (unweighted)\n' % gc.diameter())
+      gc_vert = comp[comp.sizes().index(gc_size)]
+      cim = gc.community_infomap(edge_weights=gc.es['weight'], vertex_weights=gc.vs['lfr'])
+      RGB_tuples = _palette(max(cim.membership)+1)
+      for v in g.vs:
+        gc_v = gc.vs.select(id_eq=v['id'])
+        if len(gc_v) > 0:
+          v['color'] = RGB_tuples[cim.membership[gc_v[0].index]]
+      g.es['color'] = [g.vs['color'][e.target] for e in g.es]
+  E = max(g.es['weight'])
+  g.es['width'] = [(not args.transparent)*max(1, 10*e['weight']/E) for e in g.es]
+  g.es['arrow_size'] = [max(1, 3*e['weight']/E) for e in g.es]
+  ID = max(g.vs.indegree()) or 1
+  g.vs['label_size'] = [max(12, 36*v.indegree()/ID) for v in g.vs]
+  for v in g.vs:
+    if v['type'] == 'mention':
+      v['label_color'] = 'blue'
+  for v in g.vs:
+    filename = '%s/%s%s' % (FDAT_DIR, v['user_id'], FDAT_EXT)
+    if not os.path.isfile(filename):
+      v['color'] = (0, 0, 0)
+  filename = '_'.join(args.screen_name) + \
+    ('_s' if args.strong else '_w') + \
+    ('_t' if args.transparent else '') + \
+    '.' + args.format
+  igraph.plot(g, filename, layout=g.layout(args.layout), bbox=(width, height), margin=50)
+
+def _days(created):
+  t = time.localtime()
+  c = time.strptime(created, "%a %b %d %H:%M:%S +0000 %Y")
+  return datetime.timedelta(seconds=(time.mktime(t)-time.mktime(c))).days
+
+def _skip_hash(iterable):
+  for line in iterable:
+    if not line.startswith('#'):
+      yield line
+
+def edgelist(args):
+  dat = {}
+  i = 0
+  for sn in args.screen_name:
+    for item in csv.reader(_skip_hash(open(sn+TT_EXT))):
+      if not dat.has_key(item[0]):
+        dat[item[0]] = [i]+item[1:11]+[sn]
+        i = i + 1
+        # key: user id
+        # col 0: GML id
+        # col 1: screen name
+        # col 2: friends or followers or list name
+        # col 3: friend count
+        # col 4: follower count
+        # col 5: listed count
+        # col 6: tweets
+        # col 7: date joined
+        # col 8: url
+        # col 9: avatar
+        # col 10: location
+        # col 11: handle arg
+  id0 = {user_id: val[0] for user_id, val in dat.iteritems() if val[1] in args.screen_name}
+  if not args.gdf:
+	  e = open('_'.join(args.screen_name)+EDG_EXT, 'w')
+	  e.write('graph [\n  directed 1\n')
+	  for user_id, val in dat.iteritems():
+		if not args.ego and val[1] in args.screen_name:
+		  continue
+		if not args.missing and not os.path.isfile(FDAT_DIR+'/'+str(user_id)+FDAT_EXT):
+		  continue
+		e.write('''  node [
+		id %s
+		user_id "%s"
+		file "%s.dat"
+		label "%s"
+		image "%s"
+		type "%s"
+		statuses %s
+		friends %s
+		followers %s
+		listed %s''' % (val[0], user_id, val[11], val[1], os.path.abspath(val[9]), val[2], val[6], val[3], val[4], val[5]))
+		ffr = (float(val[4])/float(val[3])) if float(val[3]) > 0 else 0
+		lfr = (10*float(val[5])/float(val[4])) if float(val[4]) > 0 else 0
+		e.write('\n    ffr %.4f' % ffr)
+		e.write('\n    lfr %.4f' % lfr)
+		if len(args.screen_name) > 1:
+		  sid = [i for i,s in enumerate(args.screen_name) if s == val[11]][0]
+		  e.write('\n    shape "%s"' % SHAPES[sid])
+		else:
+		  if ffr > 1:
+			e.write('\n    shape "triangle-up"')
+		  else:
+			e.write('\n    shape "triangle-down"')
+		e.write('\n  ]\n')
+	  for id1, val in dat.iteritems():
+		if id1 in id0.keys():
+		  continue
+		if not args.missing and not os.path.isfile(FDAT_DIR+'/'+str(id1)+FDAT_EXT):
+		  continue
+		if args.ego:
+		  for idzero in id0.values():
+			d = _days(val[7])
+			e.write('''  edge [
+		source %s
+		target %s
+		weight %s
+	  ]
+	''' % (idzero, val[0], float(val[6])/d if float(d) > 0 else 0))
+		filename = FDAT_DIR+'/'+str(id1)+FDAT_EXT
+		if os.path.isfile(filename):
+		  fdat = open(filename).readlines()
+		  for line in fdat:
+			id2 = line.strip()
+			if dat.has_key(id2):
+			  if not args.ego and id2 in id0.keys():
+				continue
+			  if not args.missing and not os.path.isfile(FDAT_DIR+'/'+str(id2)+FDAT_EXT):
+				continue
+			  d = _days(dat[id2][7])
+			  e.write('''  edge [
+		source %s
+		target %s
+		weight %s
+	  ]
+	''' % (val[0], dat[id2][0], float(dat[id2][6])/d if float(d) > 0 else 0))
+		else:
+		  sys.stdout.write('Missing data for %s\n' % dat[id1][1])
+	  e.write(']\n')
+	  e.close()
+	  sys.stdout.write('GML file created.\n')
+	  try:
+		if len(args.screen_name) > 1:
+		  sys.stdout.write('Shapes mapping: %s -> %s\n' % (args.screen_name, SHAPES[0:len(args.screen_name)]))
+		_draw(args)
+	  except:
+		sys.stderr.write('Visualization skipped.\n')
+		raise
+  else:
+    e = open('_'.join(args.screen_name)+'.gdf', 'w')
+    e.write('nodedef>name VARCHAR,user_id VARCHAR,label VARCHAR,type VARCHAR,statuses INTEGER,friends INTEGER,followers INTEGER,listed INTEGER,url VARCHAR,joined VARCHAR,location VARCHAR,avatar VARCHAR\n')
+    for user_id, val in dat.iteritems():
+      if not args.ego and val[0] in args.screen_name:
+        continue
+      e.write('''%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s''' % (val[0], user_id, val[1], val[2], val[6], val[3], val[4], val[5], val[8], val[7], val[10], val[9]))
+      e.write('\n')
+    e.write('edgedef>node1 VARCHAR,node2 VARCHAR,directed BOOLEAN\n')
+  for id1, val in dat.iteritems():
+		if id1 in id0.keys():
+		  continue
+		if not args.missing and not os.path.isfile(FDAT_DIR+'/'+str(id1)+FDAT_EXT):
+		  continue
+		if args.ego:
+		  for idzero in id0.values():
+			d = _days(val[7])
+			e.write('''%s,%s,true\n''' % (idzero, val[0]))
+		filename = FDAT_DIR+'/'+str(id1)+FDAT_EXT
+		if os.path.isfile(filename):
+		  fdat = open(filename).readlines()
+		  for line in fdat:
+			id2 = line.strip()
+			if dat.has_key(id2):
+			  if not args.ego and id2 in id0.keys():
+				continue
+			  if not args.missing and not os.path.isfile(FDAT_DIR+'/'+str(id2)+FDAT_EXT):
+				continue
+			  d = _days(dat[id2][7])
+			  e.write('''%s,%s,true\n''' % (val[0], dat[id2][0]))
+		else:
+		  sys.stdout.write('Missing data for %s\n' % dat[id1][1])
+  e.close()
+	
+def fetch(args):
+  dat = [item for item in csv.reader(_skip_hash(open(args.screen_name+TT_EXT)))]
+  if not os.path.exists(FDAT_DIR):
+    os.makedirs(FDAT_DIR)
+  cursor = res = None
+  while len(dat) > 0:
+    if cursor is None:
+      item = dat.pop()
+    if int(item[3]) > args.count:
+      sys.stdout.write('Skipping %s (%s %s)\n' % (item[1], item[3], 'friends'))
+      continue
+    filename = FDAT_DIR+'/'+str(item[0])+FDAT_EXT
+    if args.force or not os.path.isfile(filename):
+      sys.stdout.write('Processing %s...\n' % item[0])
+      try:
+        bag = _ids('friends', 'user_id='+str(item[0]), cursor, res)
+        cursor = res = None
+      except CursorError, e:
+        if e.code in SKIP_CODES:
+          sys.stdout.write('HTTPError %s with %s. Skipping...\n' % \
+            (e.code, item[0]))
+          cursor = res = None
+          continue
+        elif e.code in RETRY_CODES:
+          sys.stderr.write('HTTPError %s with %s. Deferred...' % \
+            (e.code, item[0]))
+          sys.stderr.flush()
+          dat.append(item)
+          time.sleep(random.randint(10,60))
+          cursor = res = None
+          sys.stderr.write('\n')
+          continue
+        elif e.code in WAIT_CODES:
+          sys.stderr.write('HTTPError %s at %s. Waiting %sm to resume (%s items left)...' % (e.code, time.strftime('%H:%M', time.localtime()), RL_WINDOW/60, len(dat)+1))
+          sys.stderr.flush()
+          time.sleep(RL_WINDOW+random.randint(10,60))
+          cursor = e.cursor
+          res = e.res
+          sys.stderr.write('\n')
+          continue
+        else:
+          sys.stderr.write('\n')
+          raise
+      f = open(filename, 'w')
+      for item in bag:
+        f.write(str(item)+'\n')
+      f.close()
+
+def _destroy(screen_name):
+  filename = screen_name+FAV_EXT
+  dat = [line[:20].strip() for line in open(filename, 'rU')]
+  while len(dat) > 0:
+    item = dat.pop()
+    sys.stdout.write('Purging %s...\n' % item)
+    try:
+      url = 'https://api.twitter.com/1.1/favorites/destroy.json'
+      data = {'id': item}
+      conn = urllib2.urlopen(url, urllib.urlencode(data))
+    except urllib2.HTTPError, e:
+      if e.code in SKIP_CODES:
+        sys.stdout.write('HTTPError %s with %s. Skipping...\n' % (e.code, item))
+        continue
+      elif e.code in RETRY_CODES:
+        sys.stderr.write('HTTPError %s. Deferred...' % e.code)
+        sys.stderr.flush()
+        time.sleep(random.randint(10,60))
+        dat.append(item)
+        sys.stderr.write('\n')
+        continue
+      elif e.code in WAIT_CODES:
+        sys.stderr.write('HTTPError %s at %s. Waiting %sm to resume (%s items left)...' % (e.code, time.strftime('%H:%M', time.localtime()), RL_WINDOW/60, len(dat)+1))
+        sys.stderr.flush()
+        time.sleep(RL_WINDOW+random.randint(10,60))
+        dat.append(item)
+        sys.stderr.write('\n')
+        continue
+      else:
+        sys.stderr.write('\n')
+        raise
+    data = json.loads(conn.read())
+    conn.close()
+
+def likes(args):
+  if args.purge:
+    sys.stderr.write('Press any key to purge likes or Ctrl-C to abort...')
+    sys.stderr.flush()
+    while not sys.stdin.read(1):
+      pass
+    _destroy(args.screen_name)
+  else:
+    filename = args.screen_name+FAV_EXT
+    f = codecs.open(filename, 'w', encoding='utf-8')
+    max_id = None
+    sys.stderr.write('Fetching likes')
+    sys.stderr.flush()
+    while True:
+      try:
+        url = 'https://api.twitter.com/1.1/favorites/list.json?count=%s&screen_name=%s'
+        if max_id:
+          url += '&max_id=%i' % max_id
+        conn = urllib2.urlopen(url % (100, args.screen_name))
+      except urllib2.HTTPError, e:
+        if e.code in RETRY_CODES:
+          sys.stderr.write('\nHTTPError %s. Retrying' % e.code)
+          sys.stderr.flush()
+          time.sleep(random.randint(10,60))
+          sys.stderr.write('\n')
+          continue
+        elif e.code in WAIT_CODES:
+          sys.stderr.write('\nHTTPError %s at %s. Waiting %sm to resume...' % \
+            (e.code, time.strftime('%H:%M', time.localtime()), RL_WINDOW/60))
+          sys.stderr.flush()
+          time.sleep(RL_WINDOW+random.randint(10,60))
+          sys.stderr.write('\n')
+          continue
+        else:
+          sys.stderr.write('\n')
+          raise
+      data = json.loads(conn.read())
+      conn.close()
+      sys.stderr.write('.')
+      sys.stderr.flush()
+      if len(data) == 0:
+        sys.stderr.write('\n')
+        return
+      for tweet in data:
+        if tweet['id'] == max_id:
+          if len(data) == 1:
+            sys.stderr.write('\n')
+            return
+          else:
+            continue
+        max_id = min(max_id, tweet['id']) or tweet['id']
+        f.write('%-20s %30s %-12s @%-20s %s\n' % ( \
+          tweet['id_str'], \
+          tweet['created_at'], \
+          tweet['user']['id_str'], \
+          tweet['user']['screen_name'], \
+          tweet['text'].replace('\n', ' ')))
+
+def tweets(args):
+  f = codecs.open(args.screen_name+TWT_EXT, 'w', encoding='utf-8')
+  max_id = None
+  sys.stderr.write('Fetching tweets')
+  sys.stderr.flush()
+  while True:
+    try:
+      if args.query:
+        url = 'https://api.twitter.com/1.1/search/tweets.json?q=%s&result_type=recent'
+      elif args.l:
+        url = 'https://api.twitter.com/1.1/lists/statuses.json?slug='+args.l+'&owner_screen_name=%s'
+      else:
+        url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=%s&count=100'
+      if max_id:
+        url += '&max_id=%i' % max_id
+      conn = urllib2.urlopen(url % args.screen_name)
+    except urllib2.HTTPError, e:
+      if e.code in RETRY_CODES:
+        sys.stderr.write('\nHTTPError %s. Retrying' % e.code)
+        sys.stderr.flush()
+        continue
+      elif e.code in WAIT_CODES:
+        sys.stderr.write('\nHTTPError %s at %s. Waiting %sm to resume...' % \
+          (e.code, time.strftime('%H:%M', time.localtime()), RL_WINDOW/60))
+        sys.stderr.flush()
+        time.sleep(RL_WINDOW+random.randint(10,60))
+        sys.stderr.write('\n')
+        continue
+      else:
+        sys.stderr.write('\n')
+        raise
+    data = json.loads(conn.read())
+    if args.query:
+      data = data['statuses']
+    conn.close()
+    sys.stderr.write('.')
+    sys.stderr.flush()
+    if len(data) == 0:
+      sys.stderr.write('\n')
+      return
+    for tweet in data:
+      if tweet['id'] == max_id:
+        if len(data) == 1:
+          sys.stderr.write('\n')
+          return
+        else:
+          continue
+      max_id = min(max_id, tweet['id']) or tweet['id']
+      if args.query or args.l:
+        f.write('%30s @%-20s %s\n' % (tweet['created_at'], \
+          tweet['user']['screen_name'], tweet['text'].replace('\n', ' ')))
+      else:
+        f.write('%30s %s\n' % (tweet['created_at'], tweet['text'].replace('\n', ' ')))
+
+class StatsAction(argparse.Action):
+  def __call__(self, parse, namespace, values, option_string=None):
+    _replace_opener()
+    url = 'https://api.twitter.com/1.1/application/rate_limit_status.json?resources=users,friends,statuses,search,favorites'
+    conn = urllib2.urlopen(url)
+    data = json.loads(conn.read())
+    conn.close()
+    sys.stdout.write('init/resolve (%s), ' % \
+      data['resources']['users']['/users/show/:id']['remaining'])
+    sys.stdout.write('fetch (%s), ' % \
+      data['resources']['friends']['/friends/ids']['remaining'])
+    sys.stdout.write('tweets (%s, -q %s), ' % ( \
+      data['resources']['statuses']['/statuses/user_timeline']['remaining'], \
+      data['resources']['search']['/search/tweets']['remaining']))
+    sys.stdout.write('likes (%s)\n' % \
+      data['resources']['favorites']['/favorites/list']['remaining'])
+    sys.exit(0)
+
+class QuoteAction(argparse.Action):
+  def __call__(self, parse, namespace, values, option_string=None):
+    if isinstance(values, list):
+      setattr(namespace, self.dest, map(lambda v: urllib.quote(v), values))
+    else:
+      setattr(namespace, self.dest, urllib.quote(values))
+
+def main():
+  parser = argparse.ArgumentParser(description='Twitter Collection Tool')
+  sp = parser.add_subparsers(dest='cmd', title='sub-commands')
+
+  sp_resolve = sp.add_parser('resolve', \
+    help='retrieve user_id for screen_name or vice versa')
+  sp_resolve.add_argument(dest='screen_name', nargs='+', action=QuoteAction, \
+    help='Twitter screen name')
+  sp_resolve.set_defaults(func=resolve)
+
+  sp_init = sp.add_parser('init', \
+    help='retrieve friends data for screen_name')
+  sp_init.add_argument('-o', '--followers', action='store_true', \
+    help='retrieve followers (default: friends)')
+  sp_init.add_argument('-q', '--query', action='store_true', \
+    help='extract handles from query (default: screen_name)')
+  sp_init.add_argument('-m', '--members', dest='l', \
+    help='extract member handles from list named L')
+  sp_init.add_argument('-f', '--force', action='store_true', \
+    help='ignore existing %s file (default: False)' % TT_EXT)
+  sp_init.add_argument(dest='screen_name', action=QuoteAction, \
+    help='Twitter screen name')
+  sp_init.set_defaults(func=init)
+
+  sp_fetch = sp.add_parser('fetch', \
+    help='retrieve friends of handles in %s file' % TT_EXT)
+  sp_fetch.add_argument('-f', '--force', action='store_true', \
+    help='ignore existing %s files (default: False)' % FDAT_EXT)
+  sp_fetch.add_argument('-c', dest='count', type=int, default=FMAX, \
+    help='skip if friends above count (default: %(FMAX)i)' % globals())
+  sp_fetch.add_argument(dest='screen_name', action=QuoteAction, \
+    help='Twitter screen name')
+  sp_fetch.set_defaults(func=fetch)
+
+  sp_tweets = sp.add_parser('tweets', \
+    help='retrieve tweets')
+  sp_tweets.add_argument('-q', '--query', action='store_true', \
+    help='argument is a query (default: screen_name)')
+  sp_tweets.add_argument('-m', '--members', dest='l', \
+    help='extract tweets from list named L')
+  sp_tweets.add_argument(dest='screen_name', action=QuoteAction, \
+    help='Twitter screen name')
+  sp_tweets.set_defaults(func=tweets)
+
+  sp_likes = sp.add_parser('likes', \
+    help='retrieve likes')
+  sp_likes.add_argument('-p', '--purge', action='store_true', \
+    help='destroy likes (default: False)')
+  sp_likes.add_argument(dest='screen_name', action=QuoteAction, \
+    help='Twitter screen name')
+  sp_likes.set_defaults(func=likes)
+
+  sp_edgelist = sp.add_parser('edgelist', \
+    help='generate graph in GML format', \
+    description='Vertices have the following attributes: twitter user_id, .dat source file, label, link to image file, type, statuses, friends, followers, listed, ffr and lfr. Vertices with a friends-to-followers ratio > 1 have a triangle-up shape, otherwise triangle-down. Label size is proportional to the in-degree. Edges have a width based on their weight attribute. Weight corresponds to the number of tweets per day since the account was created. Vertices included in the giant component are colored according to their membership to a particular community. Otherwise, they are colored in grey. Community finding is based on infomap and applied to members of the giant component. Black is used for vertices with no edges, with more than %s friends or set to private.' % FMAX)
+  sp_edgelist.add_argument('-f', '--format', default='png', \
+    choices=('png', 'pdf', 'ps'), \
+    help='graph output format (default: png)')
+  sp_edgelist.add_argument('-e', '--ego', action='store_true', \
+    help='include screen_name (default: False)')
+  sp_edgelist.add_argument('-l', '--layout', default='kk', \
+    choices=('circle', 'fr', 'kk'), \
+    help='igraph layout (default: kk)')
+  sp_edgelist.add_argument('-s', '--strong', action='store_true', \
+    help='use strong ties to isolate clusters (default: weak)')
+  sp_edgelist.add_argument('-t', '--transparent', action='store_true', \
+    help='hide edges in graph (default: visible)')
+  sp_edgelist.add_argument(dest='screen_name', nargs='+', action=QuoteAction, \
+    help='Twitter screen name')
+  sp_edgelist.add_argument('-m', '--missing', action='store_true', \
+    help='include missing handles (default: False)')
+  sp_edgelist.add_argument('-g', '--gdf', action='store_true', \
+    help='only create GDF file instead of GML (default: False)')
+  sp_edgelist.set_defaults(func=edgelist)
+
+  parser.add_argument('-s', '--stats', action=StatsAction, nargs=0, \
+    help='show Twitter throttling stats and exit')
+  parser.add_argument('-v', '--version', action='version', \
+    version='%(prog)s v'+'%(__version__)s' % globals())
+
+  try:
+    args = parser.parse_args()
+    _replace_opener()
+    args.func(args)
+  except KeyboardInterrupt:
+    sys.stderr.write('\n')
+    return 2
+  except Exception, err:
+    sys.stderr.write(str(err)+'\n')
+    return 1
+  else:
+    sys.stderr.write('Done.\n')
+    return 0
+
+if __name__ == '__main__':
+  sys.exit(main())

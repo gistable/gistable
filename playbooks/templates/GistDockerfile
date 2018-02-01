@@ -1,0 +1,3 @@
+FROM python:2.7.13
+ADD . /scripts
+CMD ["python" "/scripts/test_gist.py"]

@@ -1,0 +1,74 @@
+---
+
+- hosts: control
+  gather_facts: no
+  tasks:
+
+  - name: Install python
+    raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+
+- hosts: control
+
+  vars:
+    key_file: keys/do-test-harness
+    inventory_file_name: ../inventory.terraform
+    harness_directory: "{{ ansible_env.HOME }}/harness"
+
+  tasks:
+
+  - name: Add Ansible Repo
+    become: yes
+    apt_repository: repo=ppa:ansible/ansible
+
+  - name: Install APT Packages
+    become: yes
+    apt: name={{ item }} update_cache=yes
+    with_items:
+    - software-properties-common
+    - zip
+    - unzip
+    - python-pip
+    - python-netaddr
+    - ansible
+
+  - name: Install Cryptography for Vault Performance
+    pip: name=cryptography
+
+  - name: Create Harness Directories
+    file: path={{ item }} state=directory
+    with_items:
+    - "{{ harness_directory }}"
+    - "{{ harness_directory }}/playbooks"
+    - "{{ harness_directory }}/playbooks/vars"
+    - "{{ harness_directory }}/playbooks/keys"
+    - "{{ harness_directory }}/playbooks/templates"
+
+  - name: Copy Ansible Files
+    copy: src={{ item.src }} dest={{ harness_directory }}/{{ item.dest }} mode=600
+    with_items:
+    - src:  bootstrap-cluster.yml
+      dest: playbooks/bootstrap-cluster.yml
+    - src:  install-nomad.yml
+      dest: playbooks/install-nomad.yml
+    - src:  purge-nomad-jobs.yml
+      dest: playbooks/purge-nomad-jobs.yml
+    - src:  requirements.yml
+      dest: playbooks/requirements.yml
+    - src:  run-gist-jobs.yml
+      dest: playbooks/run-gist-jobs.yml
+    - src:  vars.yml
+      dest: playbooks/vars.yml
+    - src:  keys/do-test-harness
+      dest: playbooks/keys/do-test-harness
+    - src:  templates
+      dest: playbooks/
+    - src:  "{{ inventory_file_name }}"
+      dest: inventory
+    - src:  ../ansible.cfg
+      dest: ansible.cfg
+
+  - name: Install Roles
+    command: ansible-galaxy install -r {{ harness_directory }}/playbooks/requirements.yml
+
+  - name: Copy Data Files
+    copy: src=vars dest={{ harness_directory }}/playbooks

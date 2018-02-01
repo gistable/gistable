@@ -1,0 +1,35 @@
+# IDE Files
+.idea/
+*.iml
+
+# Java Files
+target/
+*.class
+
+# Python Files
+__pycache__/
+*.pyc
+.coverage
+
+# Ansible Files
+*.retry
+keys/do-test-harness*
+
+# Vagrant Files
+.vagrant/
+*.log
+
+# Terraform Files
+.terraform/
+inventory.terraform
+*.tfstate.backup
+*.lock.info
+
+# Gist files
+gists/
+gists-other/
+gists.csv
+
+# Node Files
+node_modules/
+npm-debug.log

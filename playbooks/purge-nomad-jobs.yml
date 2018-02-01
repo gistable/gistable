@@ -1,0 +1,16 @@
+---
+# Running this playbook is the equivalent of
+# for p in $(nomad status | grep batch | cut -d ' ' -f 1); do nomad stop -purge "$p"; done
+
+- hosts: nomad1
+
+  tasks:
+
+  - name: Discover Nomad Jobs
+    command: nomad status
+    register: nomad_jobs
+
+  - name: Purge Nomad Jobs
+    command: nomad stop -purge {{ job.split(' ')[0] }}
+    with_items: "{{ nomad_jobs.stdout_lines[1:] }}"
+    loop_control: { loop_var: job }
