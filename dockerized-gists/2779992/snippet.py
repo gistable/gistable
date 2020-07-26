@@ -40,7 +40,7 @@ def main():
     s.bind(("127.0.0.1",10000))
     s.listen(10)
     kq = select.kqueue()
-    # Initialise the master fd(s.fileno()) from server socket
+    # Initialise the main fd(s.fileno()) from server socket
     kevent = select.kevent(s.fileno(),
                            filter=select.KQ_FILTER_READ, # we are interested in reads
                            flags=select.KQ_EV_ADD | select.KQ_EV_ENABLE)
@@ -49,7 +49,7 @@ def main():
         revents = kq.control([kevent], 1, None)
         for event in revents:
             # If the kernel notifies us saying there is a read event available
-            # on the master fd(s.fileno()), we accept() the 
+            # on the main fd(s.fileno()), we accept() the 
             # connection so that we can recv()/send() on the the accept()ed
             # socket
             if (event.filter == select.KQ_FILTER_READ):

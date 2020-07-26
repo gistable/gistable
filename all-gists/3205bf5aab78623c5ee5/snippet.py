@@ -81,7 +81,7 @@ class CT_NotesSlide(BaseOxmlElement):
            '     </p:spTree>\n'
            '   </p:cSld>\n'
            '   <p:clrMapOvr>\n'
-           '     <a:masterClrMapping xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />\n'
+           '     <a:mainClrMapping xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />\n'
            '  </p:clrMapOvr>\n'
            '</p:notes>\n' % nsdecls('p', 'a', 'r')
         )

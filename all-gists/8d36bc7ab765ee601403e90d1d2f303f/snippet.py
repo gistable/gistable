@@ -1,10 +1,10 @@
 """
 
-    If you're editing masters or whatever
-    and you want to switch to the same glyph in the other master
+    If you're editing mains or whatever
+    and you want to switch to the same glyph in the other main
     and you spend a lot of time moving glyph windows around
     Add this script to RF and wire it to a key command
-    and then woosh woosh woosh cycle between the masters.
+    and then woosh woosh woosh cycle between the mains.
     
     Possible features, not included
         - some control over the direction, previous / next
@@ -35,7 +35,7 @@ def setGlyphWindowPosSize(glyph, pos, size, animate=False, settings=None):
     if settings is not None:
         setGlyphViewDisplaySettings(settings)
 
-def getOtherMaster(nextFont=True):
+def getOtherMain(nextFont=True):
     # determining the order of the available ufos is a bit tricky.
     cf = CurrentFont()
     orderedFonts = []
@@ -55,7 +55,7 @@ def switch():
     g = CurrentGlyph()
     if g is not None:
         f = CurrentFont()
-        n = getOtherMaster()
+        n = getOtherMain()
         nextGlyph = n[g.name]
         if nextGlyph is not None:
             rr = getGlyphWindowPosSize()

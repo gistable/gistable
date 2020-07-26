@@ -57,7 +57,7 @@ def make_DB(data_file, data_base_name, block_size):
 
         #Initializing
         header = lines.next() #Column names
-        c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        c.execute("SELECT name FROM sqlite_main WHERE type='table';")
         last_tables = set([ '['+ x[0] +']' for x in c.fetchall()]) #Keeping track of tables currently in db.
 
         #Finding types:

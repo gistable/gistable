@@ -6,8 +6,8 @@
 #
 # Envelope encryption fetches a data key from KMS and uses it to encrypt the
 # file.  The encrypted file is uploaded to an S3 bucket along with an encrypted
-# version of the data key (it's encrypted with a KMS master key).  You must
-# have access to the KMS master key to decrypt the data key and file.
+# version of the data key (it's encrypted with a KMS main key).  You must
+# have access to the KMS main key to decrypt the data key and file.
 #
 # The input file is read in parts.  Each part is then encrypted (optional)
 # with a KMS data key and multipart uploaded to an S3 bucket using a different
@@ -280,7 +280,7 @@ def main():
     aparser.add_argument("-b", "--bucket", required=True, help="S3 bucket")
     aparser.add_argument("-s", "--s3_key", required=True, help="S3 key")
     aparser.add_argument("-k", "--kms_key",
-        help="arn or alias of the KMS customer master key")
+        help="arn or alias of the KMS customer main key")
     aparser.add_argument("-c", "--part_size", default="41943040",
         help="size of each part to be uploaded (default is 40MB)")
     aparser.add_argument("-m", "--metadata", default="{}",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# (c) 2011 Raphael Jasjukaitis <webmaster@raphaa.de>
+# (c) 2011 Raphael Jasjukaitis <webmain@raphaa.de>
 
 import csv
 import os

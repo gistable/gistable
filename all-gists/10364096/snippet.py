@@ -5,8 +5,8 @@ from Tkinter import *
 
 class Application(Frame):
 
-    def __init__(self, master=None):
-        Frame.__init__(self, master)
+    def __init__(self, main=None):
+        Frame.__init__(self, main)
 
         self.pack()
         self.create_widgets()
@@ -41,6 +41,6 @@ class Application(Frame):
 
 root = Tk()
 root.title('Filter Listbox Test')
-app = Application(master=root)
+app = Application(main=root)
 print 'Starting mainloop()'
 app.mainloop()

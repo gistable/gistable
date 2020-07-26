@@ -560,7 +560,7 @@ class PypList(list,PypListCustom):
 class Pyp(object):
     '''
     pyp engine. manipulates input stream using python methods
-    @ivar history: master record of all manipulations
+    @ivar history: main record of all manipulations
     @type history: dict<int:dict>
     @ivar pwd: current directory
     @type pwd: str
@@ -1896,7 +1896,7 @@ class Pyp(object):
         
     
     
-    def process_master_switch(self,inputs, file_input, cmds, second_stream_input):
+    def process_main_switch(self,inputs, file_input, cmds, second_stream_input):
         '''
         switches between line by line and list operation based on presence of pp, spp, fpp
         @param inputs:
@@ -1985,7 +1985,7 @@ class Pyp(object):
         
         inputs = self.initilize_input() #figure out our input stream
         
-        self.process_master_switch(inputs, file_input, cmds, second_stream_input)
+        self.process_main_switch(inputs, file_input, cmds, second_stream_input)
         
         
                 

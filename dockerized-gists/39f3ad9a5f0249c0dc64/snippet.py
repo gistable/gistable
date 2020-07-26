@@ -48,7 +48,7 @@ def get_all_tweets(screen_name):
                 print "...%s tweets downloaded so far" % (len(alltweets))
 
         #go through all found tweets and remove the ones with no images 
-        outtweets = [] #initialize master list to hold our ready tweets
+        outtweets = [] #initialize main list to hold our ready tweets
         for tweet in alltweets:
                 #not all tweets will have media url, so lets skip them
                 try:

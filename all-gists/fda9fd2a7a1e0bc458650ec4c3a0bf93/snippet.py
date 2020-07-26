@@ -5,8 +5,8 @@
 #
 # Envelope encryption fetches a data key from KMS and uses it to encrypt the
 # file.  The encrypted file is uploaded to an S3 bucket along with an encrypted
-# version of the data key (it's encrypted with a KMS master key).  You must
-# have access to the KMS master key to decrypt the data key and file.  To
+# version of the data key (it's encrypted with a KMS main key).  You must
+# have access to the KMS main key to decrypt the data key and file.  To
 # decrypt, the file is downloaded to the client, the encrypted data key is
 # decrypted by AWS KMS, and the data key is used to decrypt the file.
 #

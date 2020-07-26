@@ -1,6 +1,6 @@
 """
  This is the basis for an elasticsearch 1.x backend I've cobbled together and am continuing 
- to refine and test for use. It's based on haystack master's version as of:
+ to refine and test for use. It's based on haystack main's version as of:
     - https://github.com/toastdriven/django-haystack/blob/cbb72b3253404ba21e20860f620774f7b7b691d0/haystack/backends/elasticsearch_backend.py
  But with @HonzaKral and @davedash's work to make the backend behave more like an ES user would expect with regard to doc types:
     - https://github.com/toastdriven/django-haystack/pull/921

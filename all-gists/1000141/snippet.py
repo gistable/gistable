@@ -10,14 +10,14 @@
 # prints out how many commits should go in either direction to bring
 # branches in sync. For example:
 #
-# $ git branch-io master
-# Comparing with branch master
-#   master  23> <1   feature1
-#   master   0> <12  feature2
-#   master   0> <0   feature3
+# $ git branch-io main
+# Comparing with branch main
+#   main  23> <1   feature1
+#   main   0> <12  feature2
+#   main   0> <0   feature3
 #
-# Here 23 commits from master are missing in feature1 and one commit
-# from feature1 is missing in master.
+# Here 23 commits from main are missing in feature1 and one commit
+# from feature1 is missing in main.
 
 import sys
 import subprocess

@@ -72,8 +72,8 @@ def create_ca(CN, C="", ST="", L="", O="", OU="", emailAddress="", hashalgorithm
     cacert.sign(cakey, hashalgorithm)
     return (cacert, cakey)
 
-# Create a new slave cert.
-def create_slave_certificate(csr, cakey, cacert, serial):
+# Create a new subordinate cert.
+def create_subordinate_certificate(csr, cakey, cacert, serial):
     cert = crypto.X509()
     cert.set_serial_number(serial)
     cert.gmtime_adj_notBefore(0)
@@ -151,7 +151,7 @@ def make_new_ovpn_file(ca_cert, ca_key, clientname, serial, commonoptspath, file
     # Generate a certificate request
     csr = make_csr(key, clientname)
     # Sign the certificate with the new csr
-    crt = create_slave_certificate(csr, cakey, cacert, serial)
+    crt = create_subordinate_certificate(csr, cakey, cacert, serial)
 
     # Now we have a successfully signed certificate. We must now
     # create a .ovpn file and then dump it somewhere.

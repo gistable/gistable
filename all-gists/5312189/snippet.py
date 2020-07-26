@@ -135,21 +135,21 @@ def validate_address_format(address):
 
 class Wallet:
 	def __init__(self, mpk):
-		self.master_public_key = mpk
+		self.main_public_key = mpk
 		self.addresses = []
 		self.change_addresses = []
 
 	def get_sequence(self, nth_adress, for_change):
-		return string_to_number( Hash( "%d:%d:"%(nth_adress,for_change) + self.master_public_key ) )
+		return string_to_number( Hash( "%d:%d:"%(nth_adress,for_change) + self.main_public_key ) )
 
 	def create_new_address(self, nth_adress, for_change):
-		"""   Publickey(type,nth_adress) = Master_public_key + H(nth_adress|S|type)*point  """
+		"""   Publickey(type,nth_adress) = Main_public_key + H(nth_adress|S|type)*point  """
 		curve = SECP256k1
 		if nth_adress <= 0:
 			nth_adress = len(self.change_addresses) if for_change else len(self.addresses)
 		z = self.get_sequence(nth_adress,for_change)
-		master_public_key = ecdsa.VerifyingKey.from_string( self.master_public_key, curve = SECP256k1 )
-		pubkey_point = master_public_key.pubkey.point + z*curve.generator
+		main_public_key = ecdsa.VerifyingKey.from_string( self.main_public_key, curve = SECP256k1 )
+		pubkey_point = main_public_key.pubkey.point + z*curve.generator
 		public_key2 = ecdsa.VerifyingKey.from_public_point( pubkey_point, curve = SECP256k1 )
 		address = public_key_to_bc_address( '04'.decode('hex') + public_key2.to_string() )
 		if for_change:

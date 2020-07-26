@@ -9,9 +9,9 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../ma
 from pymavlink import mavutil
 
 class App(tk.Frame):
-	def __init__(self, tkroot, mavmaster):
+	def __init__(self, tkroot, mavmain):
 		tk.Frame.__init__(self, tkroot)
-		self.mavmaster = mavmaster
+		self.mavmain = mavmain
 		self.tkroot = tkroot
 		self.validkeys = ['Right', 'Left', 'Up', 'Down']
 		self.afterId = dict((k,None) for k in self.validkeys)
@@ -20,7 +20,7 @@ class App(tk.Frame):
 		self.tkroot.bind_all('<KeyRelease>', self.keyReleased)
 	def keyPressed(self,event):
 		if event.keysym == 'Escape':
-			release_rc(self.mavmaster)
+			release_rc(self.mavmain)
 			self.quit()	
 		if event.keysym in self.validkeys:
 			if self.afterId[event.keysym] != None:
@@ -28,33 +28,33 @@ class App(tk.Frame):
 				self.afterId[event.keysym] = None
 			else:
 				self.keyState[event.keysym] = event.time
-				processKeyCommand(self.mavmaster, self.keyState)
+				processKeyCommand(self.mavmain, self.keyState)
 	def keyReleased(self,event):
 		if event.keysym in self.validkeys:
 			self.afterId[event.keysym] = self.after_idle(self.releaseKey, event)
 	def releaseKey(self, event):
 		self.afterId[event.keysym] = None
 		self.keyState[event.keysym] = False
-		processKeyCommand(self.mavmaster, self.keyState)
+		processKeyCommand(self.mavmain, self.keyState)
 
 # release control back to the radio
-def release_rc(master):
+def release_rc(main):
 	# a value of 0 releases the control to what the radio says
 	values = [ 0 ] * 8
 	for i in xrange(1):
-		master.mav.rc_channels_override_send(master.target_system, 
-			master.target_component, *values)
+		main.mav.rc_channels_override_send(main.target_system, 
+			main.target_component, *values)
 
 # attempt to send a control.
 # you can pass 0 to refer to what the radio says
 # you can pass 0xFFFF to refer to keep the current value 
-def send_rc(master, data):
+def send_rc(main, data):
 	for i in xrange(1):
-		master.mav.rc_channels_override_send(
-			master.target_system, master.target_component, *data)
+		main.mav.rc_channels_override_send(
+			main.target_system, main.target_component, *data)
 	print ("sending rc: %s"%data)
 
-def processKeyCommand(master, keystate):
+def processKeyCommand(main, keystate):
 	amt = 100
 	pitch = 1500
 	roll = 1500
@@ -79,7 +79,7 @@ def processKeyCommand(master, keystate):
 	data[0] = roll
 	data[1] = pitch
 	# send the data to the rc override command
-	send_rc(master, data)
+	send_rc(main, data)
 
 
 def main():
@@ -87,7 +87,7 @@ def main():
 	# read command line options
 	parser = OptionParser("readdata.py [options]")
 	parser.add_option("--baudrate", dest="baudrate", type='int',
-					  help="master port baud rate", default=115200)
+					  help="main port baud rate", default=115200)
 	parser.add_option("--device", dest="device", default=None, help="serial device")
 	parser.add_option("--rate", dest="rate", default=4, type='int', help="requested stream rate")
 	parser.add_option("--source-system", dest='SOURCE_SYSTEM', type='int',
@@ -101,18 +101,18 @@ def main():
 		sys.exit(1)
 
 	# create a mavlink serial instance
-	master = mavutil.mavlink_connection(opts.device, baud=opts.baudrate)
+	main = mavutil.mavlink_connection(opts.device, baud=opts.baudrate)
 
 	# wait for the heartbeat msg to find the system ID
-	master.wait_heartbeat()
+	main.wait_heartbeat()
 
 	# request data to be sent at the given rate
-	master.mav.request_data_stream_send(master.target_system, master.target_component, 
+	main.mav.request_data_stream_send(main.target_system, main.target_component, 
 		mavutil.mavlink.MAV_DATA_STREAM_ALL, opts.rate, 1)
 
 	# start up the window to read arrow keys
 	tkroot = tk.Tk()
-	application = App(tkroot, master)
+	application = App(tkroot, main)
 	tkroot.mainloop()
 
 

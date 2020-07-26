@@ -35,7 +35,7 @@ DOMAINS = "example.com www.example.com"
 DB_PWD = "password"
 VIRTUALENV_DIR = "~/.virtualenvs"
 GIT_USERNAME = "Server"
-ADMIN_EMAIL = "webmaster@localhost"
+ADMIN_EMAIL = "webmain@localhost"
 GITHUB_DEPLOY_KEY = "/Users/username/.ssh/github"
 GITHUB_REPO = "git@github.com:username/repository.git"
 

@@ -52,7 +52,7 @@ def dump_database_to_spreadsheets(filepath):
         dump_table_to_spreadsheet(cursor, table, sheetpath)
 
 def list_tables(cursor):
-    cursor.execute('select name from sqlite_master')
+    cursor.execute('select name from sqlite_main')
     return [r[0] for r in cursor
             if not r[0].startswith('sqlite')
             and not r[0].endswith('idx')]

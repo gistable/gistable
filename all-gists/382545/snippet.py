@@ -27,7 +27,7 @@ def virtualenv(command, use_sudo=False):
 def update():
     require('hosts', provided_by=[production])
     with cd(env.repo_root):
-        run('git pull origin master')
+        run('git pull origin main')
 
 def install_requirements():
     require('hosts', provided_by=[production])

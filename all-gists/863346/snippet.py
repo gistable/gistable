@@ -35,88 +35,88 @@ redis.client.Redis.RESPONSE_CALLBACKS['INFO'] = _my_parse_info
 
 class MultiLockRedis(redis.client.Redis):
     MASTER_LOCK_KEY = '_multi_lock_global_lock'
-    MASTER_SERVER_KEY = '_master_server'
-    MASTER_SERVER_VERSION_KEY = '_master_server_version' # we need to use versioning to make a server have precedence if it went down
+    MASTER_SERVER_KEY = '_main_server'
+    MASTER_SERVER_VERSION_KEY = '_main_server_version' # we need to use versioning to make a server have precedence if it went down
 
     def __init__(self, connection_dicts):
         redis.client.Redis.__init__(self)
         self.connection_dicts = connection_dicts
-        self.master_server = None
+        self.main_server = None
 
-        self._determine_master()
+        self._determine_main()
 
             
 
 
-    def _determine_master(self):
+    def _determine_main(self):
         with self._global_lock:
 
-            last_master_dict = self.master_server
+            last_main_dict = self.main_server
 
-            master_dict = None
-            master_version = -1
+            main_dict = None
+            main_version = -1
 
             highest_version_seen = -1
 
-            # first we go through all the servers and see who they think the master is.
+            # first we go through all the servers and see who they think the main is.
             for connection_dict in self.each_alive_connection():
                 
-                # we want to make it so if no redis server has been initialized, the master_dict is set to the first alive one in the list
-                if master_dict is None:
-                    master_dict = connection_dict
+                # we want to make it so if no redis server has been initialized, the main_dict is set to the first alive one in the list
+                if main_dict is None:
+                    main_dict = connection_dict
 
-                tmp_master_dict = self.hgetall(self.MASTER_SERVER_KEY)
+                tmp_main_dict = self.hgetall(self.MASTER_SERVER_KEY)
 
-                if tmp_master_dict:
-                    tmp_master_version = long(self.get(self.MASTER_SERVER_VERSION_KEY))
+                if tmp_main_dict:
+                    tmp_main_version = long(self.get(self.MASTER_SERVER_VERSION_KEY))
 
                     # save the highest_version_seen in case we don't have any alive connections
-                    highest_version_seen = max(tmp_master_version, highest_version_seen)
+                    highest_version_seen = max(tmp_main_version, highest_version_seen)
 
                     # if the version we see is higher than the highest version we've seen
                     # check if that server is still alive
-                    if tmp_master_version > master_version and \
-                       self.connection_dict_is_alive(tmp_master_dict):
-                        master_dict = tmp_master_dict
-                        master_version = tmp_master_version
+                    if tmp_main_version > main_version and \
+                       self.connection_dict_is_alive(tmp_main_dict):
+                        main_dict = tmp_main_dict
+                        main_version = tmp_main_version
 
-            master_dict['port'] = int(master_dict['port'])
-            master_dict['db'] = int(master_dict['db'])
+            main_dict['port'] = int(main_dict['port'])
+            main_dict['db'] = int(main_dict['db'])
 
-            self.master_server = master_dict
+            self.main_server = main_dict
 
-            logging.info("Setting master to %s", master_dict)
+            logging.info("Setting main to %s", main_dict)
 
-            self.select(**self.master_server)
+            self.select(**self.main_server)
 
-            # set the master server to be SLAVEOF NO ONE (master)
-            self.slaveof()
+            # set the main server to be SLAVEOF NO ONE (main)
+            self.subordinateof()
 
-            # set the appropriate values on the master for 
-            self.set(self.MASTER_SERVER_VERSION_KEY, master_version)
+            # set the appropriate values on the main for 
+            self.set(self.MASTER_SERVER_VERSION_KEY, main_version)
             self.delete(self.MASTER_SERVER_KEY)
-            self.hmset(self.MASTER_SERVER_KEY, self.master_server)
+            self.hmset(self.MASTER_SERVER_KEY, self.main_server)
             
-            master_version = highest_version_seen + 1
+            main_version = highest_version_seen + 1
             
-            master_host = self.master_server['host'] 
-            master_port = self.master_server['port']
+            main_host = self.main_server['host'] 
+            main_port = self.main_server['port']
 
             for connection_dict in self.each_alive_connection():
-                self.set(self.MASTER_SERVER_VERSION_KEY, master_version)
+                self.set(self.MASTER_SERVER_VERSION_KEY, main_version)
                 self.delete(self.MASTER_SERVER_KEY)
-                self.hmset(self.MASTER_SERVER_KEY, self.master_server)
+                self.hmset(self.MASTER_SERVER_KEY, self.main_server)
 
-                # now set all the slaves
-                if connection_dict != self.master_server:
-                    logging.info("Setting master key on %s to %s", connection_dict, master_dict)
+                # now set all the subordinates
+                if connection_dict != self.main_server:
+                    logging.info("Setting main key on %s to %s", connection_dict, main_dict)
                     
                     info = self.info()
-                    if info.get('master_host', None) != master_host or \
-                       int(info.get('master_port', -1)) != master_port:
+                    if info.get('main_host', None) != main_host or \
+                       int(info.get('main_port', -1)) != main_port:
 
-                        logging.info("Setting SLAVEOF key on %s to %s:%s", connection_dict, master_host, master_port)
-                        self.slaveof(master_host, master_port)
+                        logging.info("Setting SLAVEOF key on %s to %s:%s", connection_dict, main_host, main_port)
+                        self.subordinateof(main_host, main_port)
                 
             
 
@@ -240,7 +240,7 @@ def main():
     r = MultiLockRedis(servers)
     
     while True:
-        r._determine_master()
+        r._determine_main()
         time.sleep(1.0)
 
 

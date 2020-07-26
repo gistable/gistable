@@ -20,7 +20,7 @@
 
 raw_files = [
     {'name':'Comm_keycard', 'src':'Comm', 'fname':'CSVData_Comm_Keycard.csv'},
-    {'name':'Comm_mastercard', 'src':'Comm', 'fname':'CSVData_Comm_Mastercard.csv'},
+    {'name':'Comm_maincard', 'src':'Comm', 'fname':'CSVData_Comm_Maincard.csv'},
     {'name':'CPS_S1', 'src':'CPS', 'fname':'StatementCsv_S1.csv'},
     {'name':'CPS_S2', 'src':'CPS', 'fname':'StatementCsv_S2.csv'},
     ]
@@ -84,7 +84,7 @@ def extract_cols(fd, line):
     formats.
     Column Headers:
     CSVData_Comm_Keycard = date,amount,details
-    CSVData_Comm_Mastercard = date,amount,details
+    CSVData_Comm_Maincard = date,amount,details
     StatementCsv_S1 = Effective Date,Entered Date,Transaction Description,Amount,Balance
     StatementCsv_S2 = Effective Date,Entered Date,Transaction Description,Amount,Balance
     """

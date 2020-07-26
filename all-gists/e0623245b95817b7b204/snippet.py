@@ -25,7 +25,7 @@ AUTHOR = 'Serenity Caldwell'
 OUTFILE = 'settern.xml'
 MAX_POSTS = 40
 
-# URL for the iMore master feed
+# URL for the iMore main feed
 RSS_FEED = 'http://www.imore.com/rss.xml'
 
 
@@ -41,7 +41,7 @@ PUBDATE_REGEX = re.compile('<pubDate>(.*?)</pubDate>')
 GUID_REGEX = re.compile('<guid isPerma[lL]ink="false">([\d]*) at http://www.imore.com</guid>')
 
 
-# Read the iMore master feed
+# Read the iMore main feed
 rss_feed = urllib2.urlopen(RSS_FEED).read()
 
 # All the posts are <item> entries in the RSS feed, and come as a

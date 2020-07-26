@@ -14,7 +14,7 @@ from libcloud.compute.providers import get_driver
 env = Environment(loader=PackageLoader('openwpm-deploy', 'templates'))
 
 
-def deploy_wpm_master(driver, password):
+def deploy_wpm_main(driver, password):
     scopes = [
         {
             'email': 'default',
@@ -22,7 +22,7 @@ def deploy_wpm_master(driver, password):
         }
     ]
     # render the compose.yaml
-    compose_yaml_template = env.get_template('master-compose.jinja.yml')
+    compose_yaml_template = env.get_template('main-compose.jinja.yml')
     compose_yaml = compose_yaml_template.render(password=password)
     deploy_template = env.get_template('deploy.jinja.sh')
     deploy = deploy_template.render(docker_compose=compose_yaml)
@@ -30,13 +30,13 @@ def deploy_wpm_master(driver, password):
     with NamedTemporaryFile(delete=False) as f:
         f.write(deploy)
         name = f.name
-    master = driver.deploy_node(name="master",
+    main = driver.deploy_node(name="main",
                                     size='g1-small',
                                     image='ubuntu-1404-trusty',
                                     script=name,
                                     location='us-central1-f',
                                     ex_service_accounts=scopes)
-    return master
+    return main
 
 
 def deploy_wpm_analysis_worker(driver):
@@ -82,19 +82,19 @@ def deploy_wpm(project_id, pem_uri, service_account_email, password):
         net = None
         print "Error when setting up network"
     try:
-        master = deploy_wpm_master(driver, password)
+        main = deploy_wpm_main(driver, password)
     except ProviderError:
-        master = None
-        print "Error when setting up master"
+        main = None
+        print "Error when setting up main"
     try:
         worker = deploy_wpm_analysis_worker(driver)
     except ProviderError:
         print "Error when setting up worker"
         worker = None
-    return {'master': master, 'worker': worker}
+    return {'main': main, 'worker': worker}
 
 
-def wait_for_master(url, retry_count=10):
+def wait_for_main(url, retry_count=10):
     import urllib2
     print "Waiting for {0}".format(url)
     count = 1
@@ -119,8 +119,8 @@ def main():
         email = json.loads(f.read())['client_email']
     # ready aim fire
     ret = deploy_wpm(args.project_id, args.service_json, email, args.password)
-    wait_for_master(ret['master'].public_ips[0])
-    print "Master Notebook: https://{0}:8888".format(ret['master'].public_ips[0])
+    wait_for_main(ret['main'].public_ips[0])
+    print "Main Notebook: https://{0}:8888".format(ret['main'].public_ips[0])
 
 if __name__ == "__main__":
     main()

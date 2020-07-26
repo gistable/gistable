@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Convert a master latex file,
+"""Convert a main latex file,
 into a single document by including
 automatically all the LaTeX documents 
 which are arguments of 
@@ -8,12 +8,12 @@ ignoring any \includeonly
 """
 import sys
 if len(sys.argv)==3:
-    masterfile=sys.argv[1]
+    mainfile=sys.argv[1]
     flattenfile=sys.argv[2]
 else:
-    sys.exit('USAGE: %s masterfile.tex flattenfile.tex' %sys.argv[0])
+    sys.exit('USAGE: %s mainfile.tex flattenfile.tex' %sys.argv[0])
     
-filetex=open(masterfile,'r')
+filetex=open(mainfile,'r')
 texlist=filetex.readlines()
 finaltex=open(flattenfile,'w')
 for i in texlist:

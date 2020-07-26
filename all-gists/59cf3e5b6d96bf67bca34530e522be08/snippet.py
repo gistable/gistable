@@ -190,8 +190,8 @@ class Application(Frame):
             self.photoLabel = Label(text="Please select a com port first")
             self.photoLabel.pack()
 
-    def __init__(self, master=None):
-        Frame.__init__(self, master)
+    def __init__(self, main=None):
+        Frame.__init__(self, main)
         self.pack()
         self.createWidgets()
 
@@ -200,7 +200,7 @@ root.wm_title("STM32 OV7670")
 root.geometry('320x50')
 
 
-app = Application(master=root)
+app = Application(main=root)
 app.mainloop()
 try:
     root.destroy()

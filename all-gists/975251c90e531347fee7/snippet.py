@@ -75,7 +75,7 @@ NOT_REVIEW_ASK = 2
 ALWAYS_DELETE = 3
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--master-branch', default='master')
+parser.add_argument('--main-branch', default='main')
 parser.add_argument('--remote', default='gerrit')
 delete_mode = parser.add_mutually_exclusive_group()
 delete_mode.add_argument('--always-delete', dest='delete_mode', action='store_const',
@@ -102,12 +102,12 @@ branches = []
 git_branch_output = exec_proc('git', 'branch', '--no-color')
 # remove the '  ' or '* ' in front of the list
 branches = set(branch[2:] for branch in git_branch_output.splitlines())
-if args.master_branch not in branches:
-    print('The master branch "{0}" was not found.'.format(args.master_branch))
+if args.main_branch not in branches:
+    print('The main branch "{0}" was not found.'.format(args.main_branch))
     sys.exit(1)
 
-# Don't scan the master branch
-branches.difference_update([args.master_branch])
+# Don't scan the main branch
+branches.difference_update([args.main_branch])
 branches = sorted(branches)
 
 change_ids = set()
@@ -138,7 +138,7 @@ if change_ids:
         for change_id in change_ids:
             messages = exec_proc(
                 'git', 'log', '--pretty=medium', '--no-color',
-                '--grep=Change-Id: {0}'.format(change_id), args.master_branch)
+                '--grep=Change-Id: {0}'.format(change_id), args.main_branch)
             parts = re.split('commit ([0-9a-f]{40})', messages)
             commits = [None] * (len(parts) // 2)
             for i in range(len(commits)):  # parts is always #commits*2 + 1

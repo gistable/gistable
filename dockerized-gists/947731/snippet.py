@@ -60,7 +60,7 @@ def _restart_webserver(restart=True):
 def _restart_memcached():
     _service_restart('memcached')
 
-def _git_pull(basedir, repo, version=None, remote='origin', branch='master'):
+def _git_pull(basedir, repo, version=None, remote='origin', branch='main'):
     if not os.path.exists(basedir):
         _git_clone(basedir, repo)
 

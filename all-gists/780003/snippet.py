@@ -170,7 +170,7 @@ def marcelBattingSeason(yr):
         reliab = 1 - (1200.0/compPa)
         finalProj['rel'] = round(reliab, 2)
         finalProj['Age'] = age
-        ## add to master dict
+        ## add to main dict
         rawProjections[b] = finalProj
 
     ## re-baseline
@@ -251,17 +251,17 @@ batters = createTuple('bdb_batting.csv')
 ## this is the batting seasons sheet from the lahman db.  headers:
 ## playerID,yearID,stint,teamID,lgID,G,G_batting,AB,R,H,D,T,HR,RBI,SB,CS,BB,SO,IBB,HP,SH,SF,GIDP,G_old
 
-## master db for birthYear
-master = createTuple('bdb_master.csv')
-## master biographical data sheet from lahman db.  headers:
+## main db for birthYear
+main = createTuple('bdb_main.csv')
+## main biographical data sheet from lahman db.  headers:
 ## lahmanID,playerID,managerID,hofID,birthYear,birthMonth,birthDay,birthCountry,birthState,birthCity,deathYear,deathMonth,deathDay,deathCountry,deathState,deathCity,nameFirst,nameLast,nameNote,nameGiven,nameNick,weight,height,bats,throws,debut,finalGame,college,lahman40ID,lahman
 
 birthYear = {}
-for pl in master:
+for pl in main:
     birthYear[pl[1]] = pl[4]
 
 firstlast = {}
-for pl in master:
+for pl in main:
     firstlast[pl[1]] = [pl[16], pl[17]]
 
 ## sample usage 

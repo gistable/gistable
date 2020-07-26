@@ -31,5 +31,5 @@ with open(filename, 'a') as f:
 run([
     "git add {}".format(filename),
     "git commit --author=\"{}\" -m \"{}\"".format(author, message),
-    "git push origin master",
+    "git push origin main",
     ])

@@ -17,16 +17,16 @@ MAGIC = b'::::MAGIC::::'
 
 
 def usage():
-    print(sys.argv[0], "<master.key> <hudson.util.Secret>")
+    print(sys.argv[0], "<main.key> <hudson.util.Secret>")
     sys.exit(0)
 
 
 def get_key():
-    master_key = open(sys.argv[1], 'r').read().encode('utf-8')
+    main_key = open(sys.argv[1], 'r').read().encode('utf-8')
     hudson_secret_key = open(sys.argv[2], 'rb').read()
 
-    hashed_master_key = sha256(master_key).digest()[:16]
-    o = AES.new(hashed_master_key, AES.MODE_ECB)
+    hashed_main_key = sha256(main_key).digest()[:16]
+    o = AES.new(hashed_main_key, AES.MODE_ECB)
     x = o.decrypt(hudson_secret_key)
     assert MAGIC in x
 

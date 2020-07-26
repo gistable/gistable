@@ -8,7 +8,7 @@ from fabric.operations import prompt
 
 current_dir = os.getcwd()
 env.project_name = '{{cookiecutter.app_name}}'
-env.branch = 'master'
+env.branch = 'main'
 env.environments = ['dev',
                     'qa',
                     'prod']
@@ -113,7 +113,7 @@ def push():
 
     print cyan('Pushing to Heroku...')
     require('environment')
-    local('git push {} {}:master'.format(env.environment, env.branch))
+    local('git push {} {}:main'.format(env.environment, env.branch))
 
 
 def migrate():
@@ -167,7 +167,7 @@ def create_secret_key():
 def dev():
     """fab dev [command]"""
     env.environment = 'dev'
-    env.branch = 'master'
+    env.branch = 'main'
 
 
 def qa():

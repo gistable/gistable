@@ -471,8 +471,8 @@ class Channel:
 def telnet(shell='/bin/bash'):
     """Telnet emulation.
 
-    Opens a PTY on the remote end and connects the master side to the socket.
-    Then spawns a shell connected to the slave end and puts the controlling TTY
+    Opens a PTY on the remote end and connects the main side to the socket.
+    Then spawns a shell connected to the subordinate end and puts the controlling TTY
     on the local machine into raw mode.
     Result: Something similar to a telnet/(plaintext)ssh session.
 
@@ -483,7 +483,7 @@ def telnet(shell='/bin/bash'):
     assert(sys.stdin.isatty())
     c.setVerbose(False)
 
-    # Open a PTY and spawn a bash connected to the slave end on the remote side
+    # Open a PTY and spawn a bash connected to the subordinate end on the remote side
     code = 'import pty; pty.spawn([\'{}\', \'-i\'])'.format(shell)
     sendline('python -c "{}"; exit'.format(code))
     time.sleep(0.5)           # No really good way of knowing when the shell has opened on the other side...

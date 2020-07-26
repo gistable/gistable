@@ -4,7 +4,7 @@ import tornado.web
 from tornado.options import define, options, parse_command_line
 
 define("port",default=8888,type=int)
-define("branch",default="master")
+define("branch",default="main")
 define("access",type=str,multiple=True)
 
 class MainHandler(tornado.web.RequestHandler):

@@ -67,9 +67,9 @@ def git_update():
         with cd_project_path():
             run('git clone %(repo)s' % env)
 
-    # Fast-foward from origin master
+    # Fast-foward from origin main
     with cd_src_path():
-        run('git pull origin master')
+        run('git pull origin main')
 
 
 @task

@@ -1,6 +1,6 @@
 # encoding: utf-8
 """Experimental Solr Grouping / Field Collapsing backend for Haystack 2.0"""
-# NOTE: You must be running the latest Pysolr master - no PyPI release yet!
+# NOTE: You must be running the latest Pysolr main - no PyPI release yet!
 # See https://gist.github.com/3750774 for the current version of this code
 # See http://wiki.apache.org/solr/FieldCollapsing for the Solr feature documentation
 from __future__ import absolute_import

@@ -91,8 +91,8 @@ class Cell():
 
 
 class SpreadSheet(tk.Frame):
-    def __init__(self, rows, cols, master=None):
-        super().__init__(master)
+    def __init__(self, rows, cols, main=None):
+        super().__init__(main)
         self.rows = rows
         self.cols = cols
         self.cells = {}
@@ -123,5 +123,5 @@ class SpreadSheet(tk.Frame):
 
 
 root = tk.Tk()
-app = SpreadSheet(Nrows, Ncols, master=root)
+app = SpreadSheet(Nrows, Ncols, main=root)
 app.mainloop()

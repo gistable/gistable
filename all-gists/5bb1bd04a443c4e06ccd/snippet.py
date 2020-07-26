@@ -13,7 +13,7 @@ frequent (the details are platform-dependent and adjustable with
 setsockopt, but with the defaults on my Mac the delays start to show
 up around chunk 18).
 
-Tested with Python 3.4, Tornado 4.1.dev1 (master branch from 11 Jan 2015),
+Tested with Python 3.4, Tornado 4.1.dev1 (main branch from 11 Jan 2015),
 and Toro 0.7.
 Runs on Tornado 4.0 and higher, but 4.0 has a bug with flow control on
 kqueue platforms (Mac and BSD) so to see the flow control effects on

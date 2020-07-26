@@ -35,19 +35,19 @@ class MyHTTPServer(tornado.httpserver.HTTPServer):
         signal.signal(signal.SIGTERM, quick_shutdown_handler)
         signal.signal(signal.SIGQUIT, graceful_shutdown_handler)
 
-    def _setup_master_handlers(self):
+    def _setup_main_handlers(self):
         def quick_shutdown_handler(signum, frame):
-            logger.warning("master received signal %d. Shutting down worker quickly" % signum)
+            logger.warning("main received signal %d. Shutting down worker quickly" % signum)
             if self.child_pid:
                 os.kill(self.child_pid, signum)
                 os.waitpid(self.child_pid, 0)
             logger.warning("Child shut down successfully")
 
         def graceful_shutdown_handler(signum, frame):
-            logger.warning("master received signal %d. Shutting down worker gracefully" % signum)
+            logger.warning("main received signal %d. Shutting down worker gracefully" % signum)
             if self.child_pid:
                 os.kill(self.child_pid, signum)
-                logger.warning("master process exiting and detatching child")
+                logger.warning("main process exiting and detatching child")
             exit(0)
 
         signal.signal(signal.SIGINT, quick_shutdown_handler)
@@ -64,7 +64,7 @@ class MyHTTPServer(tornado.httpserver.HTTPServer):
             self._setup_worker_handlers()
             tornado.httpserver.HTTPServer.start(self, num_processes)
         else:
-            self._setup_master_handlers()
+            self._setup_main_handlers()
             logger.info("Waiting on child pid %d" % self.child_pid)
             try: 
                 os.waitpid(self.child_pid, 0)

@@ -30,7 +30,7 @@ def read_db(sql, con):
 
 def table_exists(name=None, con=None, flavor='sqlite'):
     if flavor == 'sqlite':
-        sql="SELECT name FROM sqlite_master WHERE type='table' AND name='MYTABLE';".replace('MYTABLE', name)
+        sql="SELECT name FROM sqlite_main WHERE type='table' AND name='MYTABLE';".replace('MYTABLE', name)
     elif flavor == 'mysql':
         sql="show tables like 'MYTABLE';".replace('MYTABLE', name)
     elif flavor == 'postgresql':

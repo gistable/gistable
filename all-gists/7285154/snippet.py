@@ -55,7 +55,7 @@ for line in mirrors.readlines():
 
 # now find the backports mirrors
 try:
-        mirrors = urllib.request.urlopen('http://backports-master.debian.org/Mirrors/')
+        mirrors = urllib.request.urlopen('http://backports-main.debian.org/Mirrors/')
 except:
         print('URL open failed!!!')
 backports = []

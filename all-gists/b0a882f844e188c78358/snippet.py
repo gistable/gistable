@@ -345,7 +345,7 @@ def get_student_PA_parameters(student_id):
     else:
         return False
 
-## Master function for getting a definition for a word. "dbase" means the definitions dbase, chinese or english
+## Main function for getting a definition for a word. "dbase" means the definitions dbase, chinese or english
 ## "cn_threshold" is only if *some* words are in english and otherse in chinese, in which case dbase is english definitions
 ## dbase and dbase2 is chinese definitions dbase. words_by_level is included if this sorting is necessary. (it would be
 ## more elegant to do that bit of sorting before this function is called)
@@ -610,7 +610,7 @@ def ask_overwrite():
 ### As explained in some other function's description, this is much faster, since it limits the number of calls
 ### to the db. Each call is longer, but there are only three calls. Because we're skipping the passive list,
 ### the third command can be removed, though not independently of making other changes to the program.
-def batch_add_active_words(to_add_active_words, to_delete_p_words, to_add_master_words, student_name, master_name, passive_name):
+def batch_add_active_words(to_add_active_words, to_delete_p_words, to_add_main_words, student_name, main_name, passive_name):
     if len(to_add_active_words) !=0: # words to add to the active database
         add_active_command = "INSERT INTO %s (word, data, lockvar) VALUES " % student_name
         for word, date, source in to_add_active_words:
@@ -619,13 +619,13 @@ def batch_add_active_words(to_add_active_words, to_delete_p_words, to_add_master
         
         do_command(add_active_command)
 
-    if len(to_add_master_words) !=0: # words to add to the vocabmaster list
-        add_master_command = "INSERT INTO %s (word, data, lockvar) VALUES " % master_name
-        for word, date, source in to_add_master_words:
-            add_master_command += """(\"%s\", \"%s\", 'False'), """ % (MySQLdb.escape_string(word),MySQLdb.escape_string(str({})))
-        add_master_command = add_master_command[:-2] + ';'
+    if len(to_add_main_words) !=0: # words to add to the vocabmain list
+        add_main_command = "INSERT INTO %s (word, data, lockvar) VALUES " % main_name
+        for word, date, source in to_add_main_words:
+            add_main_command += """(\"%s\", \"%s\", 'False'), """ % (MySQLdb.escape_string(word),MySQLdb.escape_string(str({})))
+        add_main_command = add_main_command[:-2] + ';'
         
-        do_command(add_master_command)
+        do_command(add_main_command)
 
     if len(to_delete_p_words) !=0: # words to delete from the passive list (can be removed, see function note)
         delete_p_command = "DELETE FROM %s WHERE " % passive_name
@@ -638,7 +638,7 @@ def batch_add_active_words(to_add_active_words, to_delete_p_words, to_add_master
     return
 
 ### Only used when words are directly loaded to the active sheet through the deprecated function.
-def upload_to_sdb(student_name, master_name):
+def upload_to_sdb(student_name, main_name):
     passive_name = student_name+"passive" # name of student's passive dbase
 
     input_file_name = raw_input("Please enter the file name (without .csv; must be in same folder): ") ## asks for the upload file (word/date/source)
@@ -659,11 +659,11 @@ def upload_to_sdb(student_name, master_name):
 
     passive_words = get_words_list(passive_name) # gets all the relevant lists
     active_words = get_words_list(student_name)
-    master_words = get_words_list(master_name)
+    main_words = get_words_list(main_name)
 
     to_add_active_words = []
     to_delete_p_words = []
-    to_add_master_words = []
+    to_add_main_words = []
     
     for word, date, source in words:
         if word in active_words: # if the word is already active, skip it
@@ -673,11 +673,11 @@ def upload_to_sdb(student_name, master_name):
             if word in passive_words: # if there's a passive version, delete that passive version
                 print "Passive verion deleted: " + word
                 to_delete_p_words.append((word, date, source))
-            if word not in master_words: # if there's no version in the master, add that
-                to_add_master_words.append((word, date, source))
+            if word not in main_words: # if there's no version in the main, add that
+                to_add_main_words.append((word, date, source))
 
     # do all the changes in batch, not one-by-one
-    batch_add_active_words(to_add_active_words, to_delete_p_words, to_add_master_words, student_name, master_name, passive_name)
+    batch_add_active_words(to_add_active_words, to_delete_p_words, to_add_main_words, student_name, main_name, passive_name)
 
     # log the activity
     add_to_log(student_name, input_file_name)
@@ -708,7 +708,7 @@ def batch_add_passive_words(to_add_words, to_replace_words, passive_name):
 
 ### This function is still necessary. It is used in the one-shot upload process to add passive words from the
 ### _input_file_name. It also is used in the deprecated functions to just upload passive words
-def upload_to_sdb_passive(student_name, master_name, _input_file_name = False, stats = False):
+def upload_to_sdb_passive(student_name, main_name, _input_file_name = False, stats = False):
 
     passive_name = student_name+"passive" # name of student's passive db
 
@@ -737,7 +737,7 @@ def upload_to_sdb_passive(student_name, master_name, _input_file_name = False, s
 
     active_words = get_words_list(student_name) # get words from the student's active and passive sheet
     passive_words = get_words_list(passive_name)
-    # we don't need the vocabmaster data yet because passive words are not added to the vocabmaster until they become active
+    # we don't need the vocabmain data yet because passive words are not added to the vocabmain until they become active
 
     to_add_words=[]
     to_replace_words=[]
@@ -778,8 +778,8 @@ def upload_to_sdb_passive(student_name, master_name, _input_file_name = False, s
 # has_answers(dbase, word, q_type)
 # csv_generator(q_type)
 # add_to_generator_csv(writer, word, data)
-# download_qless(q_type, dbase, master_name)
-# download_all(q_type, dbase, master_name)
+# download_qless(q_type, dbase, main_name)
+# download_all(q_type, dbase, main_name)
 # download_answer_sheet(student_name)
 ###################################################################################
 
@@ -787,7 +787,7 @@ def upload_to_sdb_passive(student_name, master_name, _input_file_name = False, s
 # (this could easily be replaced by a tweaked version of get_generator_data_from_dict; they're essentially the same function)
 def has_answers(dbdict, word, q_type):
     if not dbdict.has_key(word):
-        print "Not in master: " + word
+        print "Not in main: " + word
         return True
     
     answers = dbdict[word]
@@ -822,12 +822,12 @@ def add_to_generator_csv(writer, word, data):
     return
 
 ### This function gets the relevant questions for a particular word
-def get_generator_data_from_dict(master_dict, word, q_type):
-    if not master_dict.has_key(word): # if the word is not in the master, that's a problem, but here we keep the word anyway; probably want to return an error
-        print "Not in master: " + word
+def get_generator_data_from_dict(main_dict, word, q_type):
+    if not main_dict.has_key(word): # if the word is not in the main, that's a problem, but here we keep the word anyway; probably want to return an error
+        print "Not in main: " + word
         return {}
     
-    answers = master_dict[word] # get the questions we have for that word
+    answers = main_dict[word] # get the questions we have for that word
 
     if answers=={}: # if there are no questions, return as much
         return answers
@@ -839,35 +839,35 @@ def get_generator_data_from_dict(master_dict, word, q_type):
         return _answers # which we return at the end
 
 ### This function downloads only the words that don't have a particular type of question
-### q_type is s or m, dbase is the one from which we'll get the words, and master_name is from where we'll get the answers
-def download_qless(q_type, dbase, master_name):  
+### q_type is s or m, dbase is the one from which we'll get the words, and main_name is from where we'll get the answers
+def download_qless(q_type, dbase, main_name):  
     writer = csv_generator(q_type) # make the csv that we'll fill
 
     words = get_words_list(dbase) # get the word subset we're considering
-    master_dict = turn_dbase_into_dict(master_name) # get the words + answers set we're considering
+    main_dict = turn_dbase_into_dict(main_name) # get the words + answers set we're considering
     
     for word in words: # for every word from our word subset
-        if not has_answers(master_dict, word, q_type): # if the word has no answer in the words + answers set
+        if not has_answers(main_dict, word, q_type): # if the word has no answer in the words + answers set
             add_to_generator_csv(writer, word, {}) # add the word to the csv
 
     return
 
 ### Same as above, only this time it includes words that have questions
-def download_all(q_type, dbase, master_name):
+def download_all(q_type, dbase, main_name):
     writer = csv_generator(q_type)
 
     words = get_words_list(dbase)
-    master_dict = turn_dbase_into_dict(master_name)
+    main_dict = turn_dbase_into_dict(main_name)
     
     for word in words:
-        data = get_generator_data_from_dict(master_dict, word, q_type)
+        data = get_generator_data_from_dict(main_dict, word, q_type)
         add_to_generator_csv(writer, word, data) # adds the word with any and all answer data to the csv
 
     return
     
 # one minor note when you're looking over this set of functions, I used the words question and answer interchangeably
 # They both mean "answer option", i.e., the m1, m2, s1, etc. for a particular word
-def download_answer_sheet(student_name, master_name):    
+def download_answer_sheet(student_name, main_name):    
     while (True): # Asks what type of questions you want to make
         q_type = raw_input("Enter either m (matching word) or s (sentence completion): ")
         if q_type in ["m","s"]:
@@ -889,13 +889,13 @@ def download_answer_sheet(student_name, master_name):
             break
 
     if option=='1':
-        download_qless(q_type, master_name, master_name)
+        download_qless(q_type, main_name, main_name)
     if option=='2':
-        download_all(q_type, master_name, master_name)
+        download_all(q_type, main_name, main_name)
     if option=='3':
-        download_qless(q_type, student_name, master_name)
+        download_qless(q_type, student_name, main_name)
     if option=='4':
-        download_all(q_type, student_name, master_name)
+        download_all(q_type, student_name, main_name)
 
     print "Answer upload sheet created."
     return
@@ -905,11 +905,11 @@ def download_answer_sheet(student_name, master_name):
 ### AFTER THE USER IS FINISHED ADDING THE NEW ANSWERS
 # get_upload_csv()
 # check_if_word_exists_in_db(word, dbase)
-# clean_words(data, master_name, q_type)
-# get_data_for_upload(master_name)
+# clean_words(data, main_name, q_type)
+# get_data_for_upload(main_name)
 # check_for_changes(word, data, dbase, q_type)
 # add_new_data(word, new_q, dbase, q_type)
-# upload_answer_sheet(master_name)
+# upload_answer_sheet(main_name)
 ###################################################################################
 
 # This function lets the user pick which file with new answers they want to upload
@@ -944,16 +944,16 @@ def get_upload_csv():
     return csv_name, q_type
 
 # this function looks through all the uploaded answers to see if there are any typographic or other obvious errors
-# data = data from the csv, master_dict = the dict object version of mastervocab and q_type = m or s
-def clean_words(data, master_dict, q_type):
+# data = data from the csv, main_dict = the dict object version of mainvocab and q_type = m or s
+def clean_words(data, main_dict, q_type):
     words = {} # this dict object collects all of the words and their defintions (new and old)
     error = False # this is for errors in the firt two columns 
     answer_error_holder = False # this is for errors in the last two columns
     for row in data: # goes through each row of data
         if len(row[0]) == 0 or len(row[1]) == 0: # if the word row or (more likely) the answer row are nil (i.e., no new answer was entered, skip it)
             continue
-        if not master_dict.has_key(row[0]): # if the word in the list is not in the vocabmaster (shouldn't happen)
-            print "Not in master vocab: " + row[0] 
+        if not main_dict.has_key(row[0]): # if the word in the list is not in the vocabmain (shouldn't happen)
+            print "Not in main vocab: " + row[0] 
             error = True
             continue
         for letter in row[1]: # checks the answer column for any foreign letters
@@ -1005,7 +1005,7 @@ def clean_words(data, master_dict, q_type):
         
 # just a higher level function that finds which file the user wants to upload, checks that there are no errors in the file
 # and returns the relevant data.
-def get_data_for_upload(master_dict):
+def get_data_for_upload(main_dict):
     csv_name, q_type = get_upload_csv() # gets the csv
     if not csv_name:    
         return False, False
@@ -1022,7 +1022,7 @@ def get_data_for_upload(master_dict):
         return False, False
 
     # runs the words through the cleaning function
-    words = clean_words(_words, master_dict, q_type)
+    words = clean_words(_words, main_dict, q_type)
 
     # if there are errors, quit
     if words == False:
@@ -1036,16 +1036,16 @@ def get_data_for_upload(master_dict):
 
     return words, q_type
 
-# The point of this function is to check if the data for a word in the vocabmaster database has changed in the time between
+# The point of this function is to check if the data for a word in the vocabmain database has changed in the time between
 # when the uploader file was created and when it was finally uploaded. This is there to prevent any accidental duplication
 # (i.e. if you create an uploader and enter "go" as an answer for "walk", but someone else in the meantime has created that
 # same answer, this would recognize that changes had been made).
 # The function returns True for there are changes and False if there are none
 # word = the word, data = the data for the word FROM THE UPLOADER FILE, ddict = the dictionary object that represents the
-# CURRENT vocabmaster, q_type = m or s
+# CURRENT vocabmain, q_type = m or s
 def check_for_changes(word, data, ddict, q_type): 
-    if not ddict.has_key(word): # this checks that the word is actually in the vocabmaster database
-        print "Not in master: " + word
+    if not ddict.has_key(word): # this checks that the word is actually in the vocabmain database
+        print "Not in main: " + word
         return True
     else:
         # the next four lines create a dictionary object that contains all the questions of q_type, indexed by word.
@@ -1060,9 +1060,9 @@ def check_for_changes(word, data, ddict, q_type):
             return True
         if len(data)==1 and len(answers)==0: # this is the case where there were no answers, and there still are none
             return False
-        # now we're going to check each answer in the current vocabmaster to make sure it lines up with each non-new answer from
+        # now we're going to check each answer in the current vocabmain to make sure it lines up with each non-new answer from
         # the uploader file. this should never technically be necessary, since it will only catch times when an answer
-        # has been editted in the vocabmaster, or something else weird like that, but just in case...
+        # has been editted in the vocabmain, or something else weird like that, but just in case...
         for key in data: # go through each key in the data from the uploader
             if key == 'new': # skip the new one
                 continue
@@ -1080,11 +1080,11 @@ def check_for_changes(word, data, ddict, q_type):
 
         return False
 
-# this function actually adds the new question into the vocabmaster database
-# word = the word, new_q = the new question, dbase = the dbase where we'll upload the new data (vocabmaster), ddict = a dictionary version of the master vocab list, and q_type = m or s
+# this function actually adds the new question into the vocabmain database
+# word = the word, new_q = the new question, dbase = the dbase where we'll upload the new data (vocabmain), ddict = a dictionary version of the main vocab list, and q_type = m or s
 def add_new_data(word, new_q, dbase, ddict, q_type):
-    if not ddict.has_key(word): # if for whatever reason the master vocab list doesn't have the word, skip it; should never happen 
-        print "Not in master, not being added: " + word
+    if not ddict.has_key(word): # if for whatever reason the main vocab list doesn't have the word, skip it; should never happen 
+        print "Not in main, not being added: " + word
         return
     answers = ddict[word] # get all the existing answers for that word
     if answers=={}: # if there are no answers..
@@ -1104,29 +1104,29 @@ def add_new_data(word, new_q, dbase, ddict, q_type):
     return
 
 # this is the main function to handle uploading the .csv files that have been updated with new questions
-def upload_answer_sheet(master_name):
-    master_dict = turn_dbase_into_dict(master_name) # gets the master word list
+def upload_answer_sheet(main_name):
+    main_dict = turn_dbase_into_dict(main_name) # gets the main word list
     
-    data, q_type = get_data_for_upload(master_dict) # gets the data for the upload
+    data, q_type = get_data_for_upload(main_dict) # gets the data for the upload
     if not data:
         return
     
     edited_words = []
     
     for word in data: # goes through each word in the data
-        if check_for_changes(word, data[word], master_dict, q_type): # checks if any words have had questiosn added to then since the uploader file was downloaded
+        if check_for_changes(word, data[word], main_dict, q_type): # checks if any words have had questiosn added to then since the uploader file was downloaded
             print "Skipped: " + word # skips any words with questions added
             edited_words.append(word) # keeps track of skipped words for later
             continue
         else:
             print "Edited: " + word # otherwise, sends the words with the new data to be updated
-            add_new_data(word, data[word]['new'], master_name, master_dict, q_type)
+            add_new_data(word, data[word]['new'], main_name, main_dict, q_type)
 
     if len(edited_words)!=0: # if there are words that had to be skipped, it makes a new uploader csv with those words
         writer = csv_generator(q_type) # note that this and two of the functions below are actually for the previous section of functions
         counter = 0
         for word in edited_words:
-            data = get_generator_data_from_dict(master_dict, word, q_type)
+            data = get_generator_data_from_dict(main_dict, word, q_type)
             add_to_generator_csv(writer, word, data)
             counter+=1
 
@@ -1142,12 +1142,12 @@ def upload_answer_sheet(master_name):
 ### PASSIVE ASSIGNMENT. THE PASSIVE ASSIGNMENT GENERATION IS NOW NEVER USED INDEPENDENTLY.
 # test_csv_generator(student_name)
 # get_sdata_for_test(student_name, word)
-# get_wdata_for_test(word, s_data, master_name, max_untested_counter)
+# get_wdata_for_test(word, s_data, main_name, max_untested_counter)
 # write_test_gen(writer, data, counter)
-# generate_testing_sheet(student_name, master_name)
+# generate_testing_sheet(student_name, main_name)
 # passive_csv_generator(student_name)
 # get_pdata_for_test(passivedb, word)
-# generate_passive_sheet(student_name, master_name)
+# generate_passive_sheet(student_name, main_name)
 ###################################################################################
 
 # This function creates the csv for making an active assignment 
@@ -1166,7 +1166,7 @@ def test_csv_generator(student_name):
 # student word data in a way that that will make creating the csv easier 
 def get_sdata_for_test(student_dict, word):
     if not student_dict.has_key(word): # double-checks that the word is in the student dictionary
-        print "Not in master: " + word
+        print "Not in main: " + word
         return 'Error'
     
     data = student_dict[word] # get the data for the particular word
@@ -1193,16 +1193,16 @@ def get_sdata_for_test(student_dict, word):
 
 # this function retrieves, organizes and returns the answer data for a word (i.e. the possible answers)
 # it also ends up keeping track of the largest number of untested answers that any of the words has
-# word = word, s_data = the keys of the questions the student has already seen, master_dict = the vocabmaster in dictionary form,
+# word = word, s_data = the keys of the questions the student has already seen, main_dict = the vocabmain in dictionary form,
 # max_untested_counter = the highest number of untested answers for one word in the student's list 
-def get_wdata_for_test(word, s_data, master_dict, max_untested_counter):
-    # if for whatever reason the master_dict doesn't have a word, that's a paddlin'
-    if not master_dict.has_key(word):
-        print "Not in master: " + word
+def get_wdata_for_test(word, s_data, main_dict, max_untested_counter):
+    # if for whatever reason the main_dict doesn't have a word, that's a paddlin'
+    if not main_dict.has_key(word):
+        print "Not in main: " + word
         return 'Error', max_untested_counter
 
     counter = 0 # this counter tracks the number of untested answers
-    data = master_dict[word] # get all the answers for the word
+    data = main_dict[word] # get all the answers for the word
     for question in data: # for each answer...
         if question in s_data: # if the student has seen the question
             data[question] = '***' + data[question] # append a little code onto it to distinguish it later when we make the csv
@@ -1346,9 +1346,9 @@ def delete_old_words(s_name, sdict):
     return new_sdict
 
 # this function is the higher-level function that goes through all the steps to create a testing sheet.
-# the only variables it takes are the student name and the vocabmaster name
-def generate_testing_sheet(student_name, master_name):
-    master_dict = turn_dbase_into_dict(master_name) # gets the two databases as dictionaries
+# the only variables it takes are the student name and the vocabmain name
+def generate_testing_sheet(student_name, main_name):
+    main_dict = turn_dbase_into_dict(main_name) # gets the two databases as dictionaries
     student_dict = turn_dbase_into_dict(student_name)
 
     student_dict = delete_old_words(student_name, student_dict) # deletes the old words
@@ -1365,7 +1365,7 @@ def generate_testing_sheet(student_name, master_name):
         s_data = get_sdata_for_test(student_dict, word) # the data from the student database
         if s_data == 'Error':
             continue
-        w_data, max_untested_counter = get_wdata_for_test(word, s_data[0], master_dict, max_untested_counter) # the data from the vocabmaster database
+        w_data, max_untested_counter = get_wdata_for_test(word, s_data[0], main_dict, max_untested_counter) # the data from the vocabmain database
         if w_data == 'Error':
             continue
         data.append([word, s_data[1:], w_data]) # append all data to one big list
@@ -1405,7 +1405,7 @@ def get_pdata_for_test(passive_dict, word):
 # "pre-selected words". basically, we skip the passive sheet step by making a passive sheet but selecting the words
 # automatically, so that we can go to the upload step without needing input from the user. this is obviously inefficient,
 # but was easier to make at the time. future versions should re-make the all-in-one function from scratch.
-def generate_passive_sheet(student_name, master_name, pre_selected_words = []): 
+def generate_passive_sheet(student_name, main_name, pre_selected_words = []): 
     passive_name = student_name+'passive'
 
     # gets the words from the passive list
@@ -1455,16 +1455,16 @@ def generate_passive_sheet(student_name, master_name, pre_selected_words = []):
 # get_question_key(word, key, dbase, q_type)
 # open_grading_file(filename)
 # make_grading_file(data, order, filename, assign_date)
-# intake_testing_sheet(student_name, master_name)
+# intake_testing_sheet(student_name, main_name)
 # ask_passive_details()
 # upload_passive_file(student_name)
 # parse_passive_file(reader)
 # clean_passive_file(data)
 # get_ptest_number(dbase)
 # add_passive_to_active(dbase, word, source, date)
-# add_to_master(dbase, word)
+# add_to_main(dbase, word)
 # delete_from_passive(dbase, word)
-# intake_passive_sheet(student_name, master_name)
+# intake_passive_sheet(student_name, main_name)
 ###################################################################################
 
 # don't remember why this is a seperate function, it just makes the .rtf file. I think it came this way in the PyRTF sample and I was too afraid to touch it.
@@ -2288,10 +2288,10 @@ def assign_new_key(word, new_q, answers, q_type):
     
     return key, data # and we return the new key and the data
 
-# this function takes in a word and a key and the mastervocab dictionary and returns the answer associated with the key
+# this function takes in a word and a key and the mainvocab dictionary and returns the answer associated with the key
 def get_question_key(word, key, ddict, q_type):
-    if not ddict.has_key(word): # make sure the vocabmaster has that word (unlikely but not impossible, like if someone accidently changed a word in the testsheet)
-        print "Word not in master: " + word
+    if not ddict.has_key(word): # make sure the vocabmain has that word (unlikely but not impossible, like if someone accidently changed a word in the testsheet)
+        print "Word not in main: " + word
         return False
     
     answers = ddict[word] # get all the possible answers for that word
@@ -2353,11 +2353,11 @@ def user_question_checker(data, q_type):
     
     return new_data # returns all the words and their data, post-editting
 
-# this function updates, in one batch command, the vocabmaster database with the new information taken from the
-# testsheet (essentially, adding any new answers to words stored in the vocab master)
-def batch_update_master(to_add_master_data, master_name):
-    replace_command = "UPDATE %s SET data = CASE " % master_name
-    for word, data in to_add_master_data:
+# this function updates, in one batch command, the vocabmain database with the new information taken from the
+# testsheet (essentially, adding any new answers to words stored in the vocab main)
+def batch_update_main(to_add_main_data, main_name):
+    replace_command = "UPDATE %s SET data = CASE " % main_name
+    for word, data in to_add_main_data:
         replace_command += """WHEN word = \"%s\" THEN \"%s\" """ % (MySQLdb.escape_string(word),MySQLdb.escape_string(data))
     replace_command += "ELSE data END;"
         
@@ -2386,9 +2386,9 @@ def mark_student_words(student_dict, clean_data):
 
     return new_data
 
-# this is the higher level function that, taking the student's name and the name of the vocabmaster database, uploads
-# a testing sheet, cleans it up, creates the document and finally makes relevant changes in the student and master databases.
-def intake_testing_sheet(student_name, master_name):
+# this is the higher level function that, taking the student's name and the name of the vocabmain database, uploads
+# a testing sheet, cleans it up, creates the document and finally makes relevant changes in the student and main databases.
+def intake_testing_sheet(student_name, main_name):
     pause = raw_input("Save and close the testsheet file and hit enter.") # this is there just to get the user to save and close the file, so the program can delete it later
     
     reader, to_delete_file_name = upload_test_file(student_name) # gets a csv reader version of the test, and the file name for later deletion
@@ -2409,17 +2409,17 @@ def intake_testing_sheet(student_name, master_name):
     dict_for_grader = {} # the dictionary object we'll use for the data that will go into the grader file
     dict_for_test = {} # the same, but for the actual test
 
-    master_dict = turn_dbase_into_dict(master_name) # get the vocabmaster database as a dict
+    main_dict = turn_dbase_into_dict(main_name) # get the vocabmain database as a dict
     
     error = False
     for word, q in clean_data: # go through each word and selected question
-        if not check_if_word_exists_in_dict(word, master_dict): # make sure the word exists in the vocabmaster
+        if not check_if_word_exists_in_dict(word, main_dict): # make sure the word exists in the vocabmain
             print "Incorrect word: " + word
             error = True
             continue
         if q_type not in ['d','w']: # if the question is a matching or sentence completion question...
             if not check_new_q(q): # ... and if the question is not a new, user-generation question...
-                question = get_question_key(word, q, master_dict, q_type) # ... make sure the selected question key is proper
+                question = get_question_key(word, q, main_dict, q_type) # ... make sure the selected question key is proper
                 if question == False:
                     error = True   
 
@@ -2433,20 +2433,20 @@ def intake_testing_sheet(student_name, master_name):
     student_dict = turn_dbase_into_dict(student_name)
     marked_student_words = mark_student_words(student_dict, clean_data) # mark the words as being "out" in the student db
 
-    to_add_master_data = [] # this list will hold all the words with new questions, along with the new question data, for adding to the vocabmaster
+    to_add_main_data = [] # this list will hold all the words with new questions, along with the new question data, for adding to the vocabmain
 
     if q_type not in ['d','w']: # if we're making an M or S test
         for word, q in clean_data: # look at the word and the q (which is either a key or a typed in new question) and find the key and the question
 
             if check_new_q(q): # if it's a new question
-                key, to_add_batch = assign_new_key(word, q, master_dict[word], q_type) # generate a key for that question
+                key, to_add_batch = assign_new_key(word, q, main_dict[word], q_type) # generate a key for that question
                 if key == False: # if there's some problem, go to the next word
                     continue
                 question = q # the question is the q
-                to_add_master_data.append(to_add_batch) # and we're going to add the new question 
+                to_add_main_data.append(to_add_batch) # and we're going to add the new question 
             else: # it's not a new question
                 key = q # then q is the key
-                question = get_question_key(word, q, master_dict, q_type) # and we'll used that key to get the question
+                question = get_question_key(word, q, main_dict, q_type) # and we'll used that key to get the question
                 if question == False: # if we don't find a question, then skip it
                     continue
 
@@ -2459,9 +2459,9 @@ def intake_testing_sheet(student_name, master_name):
             dict_for_grader[word] = ['___', 'd'] # .. we just add some standard text
             dict_for_test[word] = 'd'
 
-    # if we have new questions to add to the vocabmaster, add them
-    if len(to_add_master_data)!=0:
-        batch_update_master(to_add_master_data, master_name)
+    # if we have new questions to add to the vocabmain, add them
+    if len(to_add_main_data)!=0:
+        batch_update_main(to_add_main_data, main_name)
 
     # get the test number for this test
     test_number = get_test_number(q_type, student_name)
@@ -2610,7 +2610,7 @@ def get_ptest_number(dbase):
     return 'P'+test_number
 
 # this is the batch one command updates that should be familiar aleady, in this case for an uploaded passive sheet
-def batch_passive_sheet_update(to_add_master_words, to_add_active_words, to_delete_p_words, master_name, student_name, passive_name):
+def batch_passive_sheet_update(to_add_main_words, to_add_active_words, to_delete_p_words, main_name, student_name, passive_name):
     # first, add the words that are going into the passive assignment to the active list
     if len(to_add_active_words) !=0:
         add_active_command = "INSERT INTO %s (word, data, lockvar) VALUES " % student_name
@@ -2620,14 +2620,14 @@ def batch_passive_sheet_update(to_add_master_words, to_add_active_words, to_dele
         
         do_command(add_active_command)
 
-    # then add any words that aren't in vocabmaster to vocabmaster
-    if len(to_add_master_words) !=0:
-        add_master_command = "INSERT INTO %s (word, data, lockvar) VALUES " % master_name
-        for word, date, source in to_add_master_words:
-            add_master_command += """(\"%s\", \"%s\", 'False'), """ % (MySQLdb.escape_string(word),MySQLdb.escape_string(str({})))
-        add_master_command = add_master_command[:-2] + ';'
+    # then add any words that aren't in vocabmain to vocabmain
+    if len(to_add_main_words) !=0:
+        add_main_command = "INSERT INTO %s (word, data, lockvar) VALUES " % main_name
+        for word, date, source in to_add_main_words:
+            add_main_command += """(\"%s\", \"%s\", 'False'), """ % (MySQLdb.escape_string(word),MySQLdb.escape_string(str({})))
+        add_main_command = add_main_command[:-2] + ';'
         
-        do_command(add_master_command)
+        do_command(add_main_command)
 
     # then, delete the passive words that are going into the passive assignment from the passive list
     if len(to_delete_p_words) !=0:
@@ -2649,7 +2649,7 @@ def turn_into_date(str_date):
 # note the variables with default values. these three are passed values in the one_step system, so that we can
 # circumvent some user inputs during this step, notably because in the one-step system the passive sheet is pre-prepared,
 # so we know exactly which sheet we already want to upload (passive_sheet_name).
-def intake_passive_sheet(student_name, master_name, passive_sheet_name = False, _assign_date = False, _teach_id = False):
+def intake_passive_sheet(student_name, main_name, passive_sheet_name = False, _assign_date = False, _teach_id = False):
     passive_name = student_name+"passive" # the name of the passive db
 
     # get the passive sheet
@@ -2681,12 +2681,12 @@ def intake_passive_sheet(student_name, master_name, passive_sheet_name = False, 
     # where we'll store the data for when we make the actual assignment
     words_sources = []
 
-    # get all the words from the three databases: vocabmaster, the student's active and the student's passive
-    master_words = get_words_list(master_name)
+    # get all the words from the three databases: vocabmain, the student's active and the student's passive
+    main_words = get_words_list(main_name)
     active_words = get_words_list(student_name)
     passive_words = get_words_list(passive_name)
 
-    to_add_master_words = [] # new words that need to be added to the master
+    to_add_main_words = [] # new words that need to be added to the main
     to_add_active_words = [] # new words that need to be added to the active
     to_delete_passive_words = [] # words that need to be added to the passive
 
@@ -2699,15 +2699,15 @@ def intake_passive_sheet(student_name, master_name, passive_sheet_name = False, 
         else: # otherwise..
             to_add_active_words.append((word,date,source)) # .. we'll be adding it to the active sheet
             to_delete_passive_words.append((word,date,source)) ## .. deleting it from the passive
-            if word not in master_words:
-                to_add_master_words.append((word,date,source)) ##.. and adding it to the master list if it isn't there yet (under the current system that should never happen since we're picking from a closed set of words, all of which are already in the vocabmaster file)
+            if word not in main_words:
+                to_add_main_words.append((word,date,source)) ##.. and adding it to the main list if it isn't there yet (under the current system that should never happen since we're picking from a closed set of words, all of which are already in the vocabmain file)
             words_sources.append([word,source]) # .. adding it to the list that we use for the test.
 
     # create the actual assignment
     generate_passive_assignement(words_sources, student_name, test_number, assign_date, teach_id)
 
     # update all three databases
-    batch_passive_sheet_update(to_add_master_words, to_add_active_words, to_delete_passive_words, master_name, student_name, passive_name)
+    batch_passive_sheet_update(to_add_main_words, to_add_active_words, to_delete_passive_words, main_name, student_name, passive_name)
     
     print "Passive assignment generated."
 
@@ -2717,9 +2717,9 @@ def intake_passive_sheet(student_name, master_name, passive_sheet_name = False, 
 ### UPLOAD GRADING SHEET COMMANDS
 # upload_grading_sheet(student_name)
 # upload_grader_data(reader)
-# question_exists(word, question, key, master_name)
+# question_exists(word, question, key, main_name)
 # add_graded_result(word, grade, key, date, dbase)
-# intake_grading_sheet(student_name, master_name)
+# intake_grading_sheet(student_name, main_name)
 ###################################################################################
 
 # this function follows the standard mode for getting the user to choose a file, in this case the grader file they want.
@@ -2768,17 +2768,17 @@ def upload_grader_data(reader):
     return data 
 
 # this function checks that there's a match between the key and question in the grader sheet and
-# what should be the same key and question in the mastervocab file. this is to make sure that the grader file itself
-# hasn't been tampered with (although this isn't super important) and that (more importantly) the mastervocab database hasn't
+# what should be the same key and question in the mainvocab file. this is to make sure that the grader file itself
+# hasn't been tampered with (although this isn't super important) and that (more importantly) the mainvocab database hasn't
 # been changed in some way.
-def question_exists(word, question, key, master_dict):
-    if not master_dict.has_key(word): # first we check that mastervocab has word at all
-        print "Not in master: " + word
+def question_exists(word, question, key, main_dict):
+    if not main_dict.has_key(word): # first we check that mainvocab has word at all
+        print "Not in main: " + word
         answers = {}
     else:
-        answers = master_dict[word]
+        answers = main_dict[word]
     
-    if answers.has_key(key): # then we check if the mastervocab entry for that word has the key
+    if answers.has_key(key): # then we check if the mainvocab entry for that word has the key
         if answers[key] == question: # and if the question associated with the key matches the question we're uploading
             return True
         
@@ -2848,7 +2848,7 @@ def batch_grader_update(to_replace_words, student_name):
 
 # this is the main function for taking in the grading sheet. it goes through each step, from finding the file, to uploading it,
 # to changing the data, to sending the changes back to the mysql db
-def intake_grading_sheet(student_name, master_name):
+def intake_grading_sheet(student_name, main_name):
 
     # just a reminder to close the file so we can delete it
     pause = raw_input("Close the grader file and hit enter.")
@@ -2859,7 +2859,7 @@ def intake_grading_sheet(student_name, master_name):
 
     data = upload_grader_data(reader) # get the data from the file
 
-    master_dict = turn_dbase_into_dict(master_name) # get the mastervocab
+    main_dict = turn_dbase_into_dict(main_name) # get the mainvocab
     student_dict = turn_dbase_into_dict(student_name) # get the student active db
     
     error = False
@@ -2867,7 +2867,7 @@ def intake_grading_sheet(student_name, master_name):
         if len(word) == 0: # check if a word has been removed
             continue
         if question!="___" and key!="d": # and, if the test is an M or S test
-            if not question_exists(word, question, key, master_dict): # make sure the questions that were in the test are the same as the ones in mastervocab
+            if not question_exists(word, question, key, main_dict): # make sure the questions that were in the test are the same as the ones in mainvocab
                 print "Question mismatch error: " + word
                 error = True
 
@@ -2908,7 +2908,7 @@ def intake_grading_sheet(student_name, master_name):
 
 # this basically does the same thing as the above function, but it's for if you want to un-assign the test, rather than
 # grade it. it just removes all the ^^^out^^^ markers associated with the word
-def intake_null_grading_sheet(student_name, master_name):
+def intake_null_grading_sheet(student_name, main_name):
     reader, csv_name = upload_grading_sheet(student_name)
     if reader == False:
         return False
@@ -2940,7 +2940,7 @@ def intake_null_grading_sheet(student_name, master_name):
 #
 # print_summary_stats(stats)
 # book parser
-# text_active_one_shot(student_name, master_name)
+# text_active_one_shot(student_name, main_name)
 #
 ###################################################################################
 
@@ -3125,7 +3125,7 @@ def book_parser():
 # functions, but we eventually merged it all into one, and added book_parser. this is not efficient at all, and it wouldn't
 # be too hard to make it one straightforward function, and do away with the passive databases altogether. this was just
 # an easy fix given the contraints we had at the time.
-def text_active_one_shot(student_name, master_name):
+def text_active_one_shot(student_name, main_name):
     teach_id = raw_input("Please enter your initials. ")
 
     # parse the text file, make a passive upload sheet    
@@ -3134,7 +3134,7 @@ def text_active_one_shot(student_name, master_name):
         return False
 
     # upload the passive words to the passive word list
-    passive_upload_name = upload_to_sdb_passive(student_name, master_name, parsed_name, stats)
+    passive_upload_name = upload_to_sdb_passive(student_name, main_name, parsed_name, stats)
     if not passive_upload_name: 
         return False
     else: # we delete the passive_upload file at this point if we can
@@ -3144,10 +3144,10 @@ def text_active_one_shot(student_name, master_name):
             print "Couldn't delete word uploading file." 
 
     # create a passive assignment sheet, with the temp_word_list marking which words to pre-mark for assignment
-    passive_sheet_name = generate_passive_sheet(student_name, master_name, temp_word_list)
+    passive_sheet_name = generate_passive_sheet(student_name, main_name, temp_word_list)
 
     # take in that passive sheet, with the pre-marked words, making a passive assignment from them and moving the words into the active list
-    intake_passive_sheet(student_name, master_name, passive_sheet_name, assign_date, teach_id)
+    intake_passive_sheet(student_name, main_name, passive_sheet_name, assign_date, teach_id)
 
     return passive_sheet_name
 
@@ -3185,32 +3185,32 @@ def delete_active_words(student_name):
 
 ###################################################################################
 ### ADMIN TASKS
-# indep_add_words_to_master(master_name)
+# indep_add_words_to_main(main_name)
 # admin_tasks()
-# admin_word_unlock(master_name)
+# admin_word_unlock(main_name)
 ###################################################################################
 
-# this function lets you independently add words to the vocabmaster database (you'll never use this)
-def indep_add_words_to_master(master_name):
+# this function lets you independently add words to the vocabmain database (you'll never use this)
+def indep_add_words_to_main(main_name):
     while True:
         word = lower(raw_input("Enter word (* to quit): ")) # asks for words one by one
         if word == '*':
             return
-        elif check_if_word_exists_in_db(word, master_name): # checks if word exists already
+        elif check_if_word_exists_in_db(word, main_name): # checks if word exists already
             print "This word is already in there."
         else: # adds it
             data = {}
-            do_command("""INSERT INTO %s (word, data, lockvar) VALUES (\"%s\", \"%s\", 'False')""" % (master_name,MySQLdb.escape_string(word),MySQLdb.escape_string(str(data))))
+            do_command("""INSERT INTO %s (word, data, lockvar) VALUES (\"%s\", \"%s\", 'False')""" % (main_name,MySQLdb.escape_string(word),MySQLdb.escape_string(str(data))))
 
-# unlocks the master dbase
-def admin_master_unlock(master_name):
-    unlock_dbase(master_name)
+# unlocks the main dbase
+def admin_main_unlock(main_name):
+    unlock_dbase(main_name)
     return
 
 # unlocks a single word (we don't use this right now and probably won't, so I won't bother commmenting it)
-def admin_word_unlock(master_name):
+def admin_word_unlock(main_name):
     while True:
-        row = do_command("SELECT word FROM %s WHERE lockvar = 'True'" % master_name)
+        row = do_command("SELECT word FROM %s WHERE lockvar = 'True'" % main_name)
         print "Locked words:"
         counter = 1
         locked_word = []
@@ -3232,7 +3232,7 @@ def admin_word_unlock(master_name):
                 word = locked_word[int(word)-1]
                 break
 
-        unlock_word(master_name, word)
+        unlock_word(main_name, word)
 
 # this also won't be used. it lets us change the spelling of a word across databases (ie if you spelled 'song' with an m, you
 # can use this to change all 'somg's to 'song's). This is non-trivial, and this is an imperfectly made function (a better one
@@ -3366,13 +3366,13 @@ def admin_fillup_dict():
     return
 
 # the main menu for admin tasks. very straightforward
-def admin_tasks(master_name):
+def admin_tasks(main_name):
     while (True):
         while (True):
                 print "Select an option."
-                print "1. Add words independently to vocab master."
+                print "1. Add words independently to vocab main."
                 print "2. Unlock words."
-                print "3. Unlock master database."
+                print "3. Unlock main database."
                 print "4. Change word spelling across databases."
                 print "5. Backup all databases (once per day)."
                 print "6. Fill-up dictionary from tables."
@@ -3385,11 +3385,11 @@ def admin_tasks(master_name):
                     break
 
         if option == '1':
-            indep_add_words_to_master(master_name)
+            indep_add_words_to_main(main_name)
         elif option == '2':
-            admin_word_unlock(master_name)
+            admin_word_unlock(main_name)
         elif option == '3':
-            admin_master_unlock(master_name)
+            admin_main_unlock(main_name)
         elif option == '4':
             admin_change_word_spelling()
         elif option == '5':
@@ -3413,7 +3413,7 @@ def admin_tasks(master_name):
 
 # this function sets up the MySQL connection
 def initialization_sequence():
-    master_name = "vocabmaster" # the name of the master db of all the words and all the questions
+    main_name = "vocabmain" # the name of the main db of all the words and all the questions
 
     # as I mentioned earlier, we define a bunch of these global variables so that reconnecting is easier. it's
     # a very ugly solution, it works for now
@@ -3455,14 +3455,14 @@ def initialization_sequence():
     cursor.execute("SET SESSION WAIT_TIMEOUT = 60") # Set a longer timeout, though in fact playing with this variables doesn't seem to change much
     cursor.execute("USE %s" % db) # sets the db
 
-    if not check_if_db_exists("vocabmaster"): # should never happen
-        print "No master vocab."
+    if not check_if_db_exists("vocabmain"): # should never happen
+        print "No main vocab."
         return False
 
     if pre_unlock: # if we're pre-unlocking, do that (note if the database is unlocked anyway, that won't make a problem)
-        admin_master_unlock(master_name)
+        admin_main_unlock(main_name)
 
-    return master_name
+    return main_name
 
 # this function asks the user to pick which student they want to work on
 def pick_student_name():
@@ -3479,8 +3479,8 @@ def pick_student_name():
     # this makes a list of all the selectable students, using a mechanism that should be familiar by now
     print "Current students:"
     for db in row:
-        # below we make sure we're not listing the vocabmaster, or any passive dbs, or any backups or anything else like that
-        if str(db[0])!='vocabmaster' and str(db[0][-7:])!='passive' and str(db[0][:6])!='backup' and str(db[0][0])!='*' and str(db[0]) not in deprec_stud:
+        # below we make sure we're not listing the vocabmain, or any passive dbs, or any backups or anything else like that
+        if str(db[0])!='vocabmain' and str(db[0][-7:])!='passive' and str(db[0][:6])!='backup' and str(db[0][0])!='*' and str(db[0]) not in deprec_stud:
             print str(counter) + '. ' + str(db[0])
             dbs.append(str(db[0]))
             counter+=1
@@ -3491,7 +3491,7 @@ def pick_student_name():
         if db_name == '@': # here the user is asking to make a new student
             while True:
                 new_name = raw_input('Enter the new student\'s name or * to quit. ') # enter the student's name
-                if new_name in dbs or new_name == 'vocabmaster' or new_name[-7:]=='passive': # if the name matches some bad criteria
+                if new_name in dbs or new_name == 'vocabmain' or new_name[-7:]=='passive': # if the name matches some bad criteria
                     print 'That name already exists or is illegal.' # don't allow it
                     continue
                 if new_name == '*': # otherwise leave
@@ -3538,31 +3538,31 @@ def create_new_sdb(name):
 
 # the function that handles the startup sequence
 def run_program():
-    master_name = initialization_sequence() # makes the MySQL connection
-    if not master_name: # if there was an error, quit
+    main_name = initialization_sequence() # makes the MySQL connection
+    if not main_name: # if there was an error, quit
         return
 
-    if locked(master_name): # check if the database is locked. if it is..
+    if locked(main_name): # check if the database is locked. if it is..
         print "Database in use. Please try again later." # tell the user
         leave = raw_input("Hit enter to quit, * to go to admin. ") # they can either quit or go to the admin to unlock it
         if leave == '*': # if *...
-            admin_tasks(master_name) # go to admin
-            if locked(master_name): # check if it still locked after the admin
+            admin_tasks(main_name) # go to admin
+            if locked(main_name): # check if it still locked after the admin
                 return # if yes, quit
             else: # otherwise..
                 if db == "sophos_vocab": # if we're using the primary db, not the alternate
-                    lock_dbase(master_name) # lock it
+                    lock_dbase(main_name) # lock it
         else: # if they don't go to admin
             return # quit
     else: # if the database isn't locked
         if db == "sophos_vocab": # and we're using the primary db
-            lock_dbase(master_name) # lock it
+            lock_dbase(main_name) # lock it
             pass
 
     # get the student name
     student_name = pick_student_name()
     if not student_name: # if the user wanted to quit
-        unlock_dbase(master_name) # unlock the db before quitting
+        unlock_dbase(main_name) # unlock the db before quitting
         return
 
     # present the main options menu
@@ -3598,23 +3598,23 @@ def run_program():
 
         # the four main functions
         if option == '1':
-            passive_sheet_name = text_active_one_shot(student_name, master_name)
+            passive_sheet_name = text_active_one_shot(student_name, main_name)
             if passive_sheet_name != False: # if there wasn't an error...
                 try:
                     os.remove(passive_sheet_name) # ...remove the passive_sheet file
                 except WindowsError: # unless it's open (unlikely, since the user doesn't need to open the file)
                     print "You left the grading sheet open, so it wasn't deleted. Manually delete." 
         elif option == '2':
-            generate_testing_sheet(student_name, master_name)
+            generate_testing_sheet(student_name, main_name)
         elif option == '3':
-            testsheet_name = intake_testing_sheet(student_name, master_name)
+            testsheet_name = intake_testing_sheet(student_name, main_name)
             if testsheet_name != False:
                 try:
                     os.remove(testsheet_name) # same as above, remove the testsheet file if it's not open
                 except WindowsError:
                     print "You left the grading sheet open, so it wasn't deleted. Manually delete." 
         elif option == '4':
-            grader_name = intake_grading_sheet(student_name, master_name)
+            grader_name = intake_grading_sheet(student_name, main_name)
             if grader_name != False:
                 try:
                     os.remove(grader_name) # ibid
@@ -3625,7 +3625,7 @@ def run_program():
         elif option == 'a':
             delete_active_words(student_name)
         elif option == 'b':
-            grader_name = intake_null_grading_sheet(student_name, master_name)
+            grader_name = intake_null_grading_sheet(student_name, main_name)
             if grader_name != False: # if there wasn't an error
                 try: # delete the grader file
                     os.remove(grader_name)
@@ -3634,31 +3634,31 @@ def run_program():
 
         # list of the essentially deprecated functions. nothing special here
         elif option == 'A':
-            upload_to_sdb(student_name, master_name)
+            upload_to_sdb(student_name, main_name)
         elif option == 'B':
-            upload_to_sdb_passive(student_name, master_name)            
+            upload_to_sdb_passive(student_name, main_name)            
         elif option == 'C':
-            generate_passive_sheet(student_name, master_name)
+            generate_passive_sheet(student_name, main_name)
         elif option == 'D':
-            intake_passive_sheet(student_name, master_name)
+            intake_passive_sheet(student_name, main_name)
         elif option == 'E':
-            download_answer_sheet(student_name, master_name)
+            download_answer_sheet(student_name, main_name)
         elif option == 'F':
-            upload_answer_sheet(master_name)
+            upload_answer_sheet(main_name)
 
         # let's the user pick a new student name
         elif option == '@':
             student_name = pick_student_name()
             if not student_name: # or quit if none is chosen
-                unlock_dbase(master_name)
+                unlock_dbase(main_name)
                 return
         elif option == '!': # loads the admin tasks
-            admin_tasks(master_name)
+            admin_tasks(main_name)
         elif option == '*': # quits
             break
 
     # once we quit, unlock the db
-    unlock_dbase(master_name)
+    unlock_dbase(main_name)
     
     try: # try closing the connection
         conn.close()

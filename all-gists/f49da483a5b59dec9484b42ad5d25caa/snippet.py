@@ -93,7 +93,7 @@ def upload_repository(name, project):
     project_dir = os.path.join("/tmp", project, name)
     remote = "git@bitbucket.org:{0}/{1}.git".format(BITBUCKET_TEAM, name)
     subprocess.run(["git", "remote", "add", "bitbucket", remote], cwd=project_dir)
-    subprocess.run(["git", "push", "bitbucket", "master"], cwd=project_dir)
+    subprocess.run(["git", "push", "bitbucket", "main"], cwd=project_dir)
 
 
 class Migrator:

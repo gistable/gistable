@@ -1,5 +1,5 @@
 # Example of Naive Bayes implemented from Scratch in Python
-#http://machinelearningmastery.com/naive-bayes-classifier-scratch-python/
+#http://machinelearningmainy.com/naive-bayes-classifier-scratch-python/
 import csv
 import random
 import math

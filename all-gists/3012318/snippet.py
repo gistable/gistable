@@ -38,7 +38,7 @@ def fake_destroy_test_db(self, old_database_name, verbosity=1):
     self.connection.settings_dict['NAME'] = old_database_name
 
 
-class AutoslaveTestSuiteRunner(DjangoTestSuiteRunner):
+class AutosubordinateTestSuiteRunner(DjangoTestSuiteRunner):
 
     option_list = (
         make_option('--createdb',
@@ -53,7 +53,7 @@ class AutoslaveTestSuiteRunner(DjangoTestSuiteRunner):
     def __init__(self, createdb=True, dropdb=True, **kwargs):
         self.createdb = createdb
         self.dropdb = dropdb
-        super(AutoslaveTestSuiteRunner, self).__init__(**kwargs)
+        super(AutosubordinateTestSuiteRunner, self).__init__(**kwargs)
 
     def setup_databases(self, **kwargs):
         """Create the test databases only when explicitly requested.
@@ -66,7 +66,7 @@ class AutoslaveTestSuiteRunner(DjangoTestSuiteRunner):
             from django.db.backends.creation import BaseDatabaseCreation
             BaseDatabaseCreation.create_test_db = fake_create_test_db
 
-        result = super(AutoslaveTestSuiteRunner, self).setup_databases(**kwargs)
+        result = super(AutosubordinateTestSuiteRunner, self).setup_databases(**kwargs)
         if self.createdb:
             # Initialize some tables that are populated by scripts
             # rather than fixtures; hardcoded for our local setup.

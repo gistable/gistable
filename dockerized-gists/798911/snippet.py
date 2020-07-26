@@ -2,12 +2,12 @@ def start_replication():
     """
     Begin Postgresql standby
     """
-    # Stop pg on the slave machine.
-    with settings(host_string=env.db_slave):
+    # Stop pg on the subordinate machine.
+    with settings(host_string=env.db_subordinate):
         run('service postgresql-9.0 stop')
 
-    # Create the backup on the master machine
-    with settings(host_string=env.db_master):
+    # Create the backup on the main machine
+    with settings(host_string=env.db_main):
         run('psql -U postgres -c "SELECT pg_start_backup(\'Starting replication\');"')
         with cd('/var/lib/pgsql/9.0'):
             cmd = (
@@ -16,7 +16,7 @@ def start_replication():
                 '--exclude postgresql.pid data/* '\
                 'postgres@%s:/var/lib/pgsql/9.0/data'
             )
-            run(cmd % env.db_slave)
+            run(cmd % env.db_subordinate)
         run("psql -U postgres -c 'SELECT pg_stop_backup();'")
 
         # Copy over the WAL files
@@ -26,8 +26,8 @@ def start_replication():
                 'rsync -av data/pg_xlog '\
                 'postgres@%s:/var/lib/pgsql/9.0/data/'
             )
-            run(cmd % env.db_slave)
+            run(cmd % env.db_subordinate)
 
-    # Now start postgres on the slave.
-    with settings(host_string=env.db_slave):
+    # Now start postgres on the subordinate.
+    with settings(host_string=env.db_subordinate):
         run('service postgresql-9.0 start')

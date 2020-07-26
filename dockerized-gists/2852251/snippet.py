@@ -27,7 +27,7 @@ class Commit(object):
             exit(-1)
         self.commit_complete_message = "Your repo -> " + self.repo + " has been successfully committed at " +  self.now.strftime("%Y-%m-%d %H:%M")
         print self.commit_complete_message
-        if subprocess.call([ "git","push","-u","origin","master" ], cwd=self.repo) != 0:
+        if subprocess.call([ "git","push","-u","origin","main" ], cwd=self.repo) != 0:
             exit(-1)
         print "Pushed"
         

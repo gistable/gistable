@@ -44,7 +44,7 @@ def migrate(app, migration):
 def migrate_all():
 	subprocess.check_call(["./manage.py", "migrate"])
 
-def migrate_branch(target='master', source=None):
+def migrate_branch(target='main', source=None):
 	from collections import defaultdict
 	if not source:
 		source = get_current_branch()

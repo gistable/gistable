@@ -25,7 +25,7 @@ def get_dates_and_shas(branch, start, end, interval):
 					'--before', str(end), '--no-merges', branch], 
 					stdout=subprocess.PIPE)
 		# Read the SHAs to get the exact date they were committed onto the 
-		# master branch
+		# main branch
 		for sha in revlist.stdout.readlines():
 			shas.append(sha[:-1])
 			dates.append(dateparse(subprocess.Popen(['git', 'show', 

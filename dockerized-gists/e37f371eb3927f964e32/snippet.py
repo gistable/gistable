@@ -1,6 +1,6 @@
 # Instruction:
 # - git clone https://google.github.io/material-design-icons/
-# - Place and run this script inside the material-icons-master folder
+# - Place and run this script inside the material-icons-main folder
 #
 # How to use (by example)
 # python copy-android.py social notifications_none white 24dp ~/AndroidStudioProjects/my-project/app/src/main/res/
@@ -18,7 +18,7 @@ import argparse
 import os
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Copy Image Assets from Material Design to your Android Project, preview all here: https://google.github.io/material-design-icons/, place and run this script inside the material-icons-master folder')
+    parser = argparse.ArgumentParser(description='Copy Image Assets from Material Design to your Android Project, preview all here: https://google.github.io/material-design-icons/, place and run this script inside the material-icons-main folder')
     parser.add_argument('group', type=str, help='Group (example: social, av, navigation, ...)')
     parser.add_argument('name', type=str, help='Name of the icon or icons separated by a comma (,) (example: 3d_rotation, attach_file, poll, ...)')
     parser.add_argument('color', type=str, help='Color of the icon', choices=['black', 'white'])

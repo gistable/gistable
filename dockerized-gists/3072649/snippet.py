@@ -5,8 +5,8 @@ class GraphException(Exception):
   Exception.__init__(self, string)
 
 class Graph(Tkinter.Canvas):
- def __init__(self, master, **options):
-  Tkinter.Canvas.__init__(self, master, **options)
+ def __init__(self, main, **options):
+  Tkinter.Canvas.__init__(self, main, **options)
   if 'width' in options and 'height' in options:
    self.width = int(options['width'])
    self.height = int(options['height'])

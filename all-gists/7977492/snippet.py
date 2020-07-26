@@ -10,7 +10,7 @@ import requests
 import json
 import base64
 
-SITE_BRANCH = 'gh-pages' # either master or gh-pages
+SITE_BRANCH = 'gh-pages' # either main or gh-pages
 
 #keychain.delete_password('GitHub', 'username')
 #keychain.delete_password('GitHub', 'token')

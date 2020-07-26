@@ -229,22 +229,22 @@ class MobiBuilder(StandaloneHTMLBuilder):
         return result
 
     def get_toc(self):
-        """Get the total table of contents, containg the master_doc
+        """Get the total table of contents, containg the main_doc
         and pre and post files not managed by sphinx.
         """
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+        doctree = self.env.get_and_resolve_doctree(self.config.main_doc,
             self, prune_toctrees=False)
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = os.path.dirname(self.config.master_doc)
-        if master_dir:
-            master_dir += '/' # XXX or os.sep?
+        main_dir = os.path.dirname(self.config.main_doc)
+        if main_dir:
+            main_dir += '/' # XXX or os.sep?
             for item in self.refnodes:
-                item['refuri'] = master_dir + item['refuri']
+                item['refuri'] = main_dir + item['refuri']
         self.refnodes.insert(0, {
             'level': 1,
-            'refuri': self.esc(self.config.master_doc + '.html'),
+            'refuri': self.esc(self.config.main_doc + '.html'),
             'text': ssp(self.esc(
-                    self.env.titles[self.config.master_doc].astext()))
+                    self.env.titles[self.config.main_doc].astext()))
         })
         for file, text in reversed(self.config.mobi_pre_files):
             self.refnodes.insert(0, {

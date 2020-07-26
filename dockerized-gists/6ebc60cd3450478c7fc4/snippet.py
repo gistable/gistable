@@ -16,7 +16,7 @@ def lambda_handler(event, context):
         sys.stderr.exit()
     # take the first relevant cluster
     cluster_id = clusters[0]
-    # code location on your emr master node
+    # code location on your emr main node
     CODE_DIR = "/home/hadoop/code/"
 
     # spark configuration example

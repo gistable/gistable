@@ -1,7 +1,7 @@
 # This file works with Python 2.7
 # To make it work with Python 3 it need some modifications
 
-# Example: python auto-commit.py -a="push" -c="My Commit" -b="master"
+# Example: python auto-commit.py -a="push" -c="My Commit" -b="main"
 # If you left the commit variable empty or wrote `auto` it will generate
 # a random commit from whatthecommit.com
 # for more info run: python auto-commit.py -h

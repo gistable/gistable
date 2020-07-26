@@ -33,7 +33,7 @@ def get_table_list(sqldb_loc):
     conn = sqlite3.connect(sqldb_loc)
     cur = conn.cursor()
     res = cur.execute("""SELECT name
-                           FROM sqlite_master
+                           FROM sqlite_main
                            WHERE type='table'""")
     names = [x[0] for x in res]
     cur.close()

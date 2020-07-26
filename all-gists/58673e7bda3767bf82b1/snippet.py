@@ -1,7 +1,7 @@
 #MenuTitle: Compare Fonts
 # -*- coding: utf-8 -*-
 __doc__="""
-- Compare 2 open files and opens a new tab (in the current font) for each master showing the glyphs that are different between the 2 files.
+- Compare 2 open files and opens a new tab (in the current font) for each main showing the glyphs that are different between the 2 files.
 
 - A decomposed copy of each different glyph from the other file will also be pasted in the background of each glyph in the current file. 
 
@@ -36,14 +36,14 @@ def copyPathsAndAnchorsFromLayerToLayer( sourceLayer, targetLayer ):
             targetLayer.anchors.append( newAnchor )
             # print "   %s (%i, %i)" % ( thisAnchor.name, thisAnchor.position.x, thisAnchor.position.y )
 
-for thisMasterIndex in range( len(Glyphs.fonts[0].masters) ):
+for thisMainIndex in range( len(Glyphs.fonts[0].mains) ):
 
     # fonts = AllFonts()
     # f1 = RFont(Glyphs.fonts[0])
     # f2 = RFont(Glyphs.fonts[1])
 
-    f1 = RFont(Glyphs.documents[0].font, thisMasterIndex)
-    f2 = RFont(Glyphs.documents[1].font, thisMasterIndex)
+    f1 = RFont(Glyphs.documents[0].font, thisMainIndex)
+    f2 = RFont(Glyphs.documents[1].font, thisMainIndex)
 
     f1_glyphset = set(f1.keys())
     f2_glyphset = set(f2.keys())
@@ -79,7 +79,7 @@ for thisMasterIndex in range( len(Glyphs.fonts[0].masters) ):
     notSameGlyphsString = '/{0}'.format('/'.join(notSameGlyphsList))
     sameGlyphsString = '/{0}'.format('/'.join(sameGlyphsList))
 
-    print "\n%s" % Glyphs.fonts[0].masters[thisMasterIndex].name
+    print "\n%s" % Glyphs.fonts[0].mains[thisMainIndex].name
     print "\tDifferent Glyphs\n%s" % notSameGlyphsString
     print "\n\tDifference is that one file is blank Glyphs\n%s" % blankGlyphsString
     ## print "\n\tSame Glyphs\n%s" % sameGlyphsString
@@ -94,16 +94,16 @@ for thisMasterIndex in range( len(Glyphs.fonts[0].masters) ):
             otherFont = Glyphs.fonts[1]
 
         # Add glyphs to background
-        thisFontMasterID = thisFont.masters[thisMasterIndex].id
+        thisFontMainID = thisFont.mains[thisMainIndex].id
 
         for thisGlyphName in notSameGlyphsList:
             if thisGlyphName not in blankGlyphsList:
 
                 # Get the current layer for the current glyph
-                thisLayerInOtherFont = otherFont.glyphs[thisGlyphName].layerForKey_(thisFontMasterID)
-                thisLayerInThisFont = thisFont.glyphs[thisGlyphName].layerForKey_(thisFontMasterID)
+                thisLayerInOtherFont = otherFont.glyphs[thisGlyphName].layerForKey_(thisFontMainID)
+                thisLayerInThisFont = thisFont.glyphs[thisGlyphName].layerForKey_(thisFontMainID)
                 thisGlyphInThisFontLayerBackground = thisLayerInThisFont.background
-                sourceLayer = otherFont.glyphs[thisGlyphName].layerForKey_(thisFontMasterID).copyDecomposedLayer()
+                sourceLayer = otherFont.glyphs[thisGlyphName].layerForKey_(thisFontMainID).copyDecomposedLayer()
 
                 # Clear the background and copy the paths, components and anchors
                 thisLayerInThisFont.background.clear()
@@ -112,5 +112,5 @@ for thisMasterIndex in range( len(Glyphs.fonts[0].masters) ):
     # Open new tabs with different glphs
     if notSameGlyphsList != []:
         Glyphs.font.newTab(notSameGlyphsString)
-        # Change to the correct master
-        Glyphs.font.currentTab.setMasterIndex_(thisMasterIndex)
+        # Change to the correct main
+        Glyphs.font.currentTab.setMainIndex_(thisMainIndex)

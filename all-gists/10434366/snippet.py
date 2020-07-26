@@ -25,7 +25,7 @@ ZONE = collections.namedtuple('ZONE', ['filename', 'type'])
 
 HEADER = """\
 $TTL 3600
-@  IN  SOA ns.%s. hostmaster.%s.     (
+@  IN  SOA ns.%s. hostmain.%s.     (
             %s01           ; serial
             14400                ; refresh
             3600                 ; retry
@@ -90,7 +90,7 @@ with open(filename, 'w') as handle:
 
     # Dont append zones that already exist
     if DOMAIN not in zones:
-        zones[DOMAIN] = ZONE(filename, 'master')
+        zones[DOMAIN] = ZONE(filename, 'main')
 
     handle.write(HEADER)
 
@@ -149,7 +149,7 @@ for zone in ptr_zones:
 
     # Dont append zones that already exist
     if name not in zones:
-        zones[name] = ZONE(filename, 'master')
+        zones[name] = ZONE(filename, 'main')
 
     with open(filename, 'w') as handle:
         handle.write(HEADER)

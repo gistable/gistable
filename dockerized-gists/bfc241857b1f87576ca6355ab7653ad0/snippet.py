@@ -39,8 +39,8 @@ import time
 HOSTNAME = commands.getoutput('hostname')
 TERMINAL_ENCODING = commands.getoutput('locale charmap')
 WMCTRL_WINDOW_LIST = "wmctrl -l -x | grep 'spotify.Spotify' | grep -v 'grep'"
-MUTE_COMMAND = "amixer -q -D pulse sset Master mute"
-UNMUTE_COMMAND = "amixer -q -D pulse sset Master unmute"
+MUTE_COMMAND = "amixer -q -D pulse sset Main mute"
+UNMUTE_COMMAND = "amixer -q -D pulse sset Main unmute"
 SPOTIFY_OPEN_COMMAND = "ps -ef | grep Spotify | grep -v grep | wc -l"
 
 MUTED = False
@@ -64,9 +64,9 @@ KNOWN_TITLES = (
     # Titles I want to be sure that are valid
     map(
         lambda x: '- {}'.format(x),
-        ['Remastered', 'Extended Version', 'En Vivo', 'MTV Unplugged', 'Acoustic', 'Versión Acústica', 'Live',
+        ['Remained', 'Extended Version', 'En Vivo', 'MTV Unplugged', 'Acoustic', 'Versión Acústica', 'Live',
          'Directo', 'directo', 'unplugged', 'en directo', 'Unplugged Version', 'Live/Unplugged', 'Instrumental',
-         'Remasterizado', 'BBC'],
+         'Remainizado', 'BBC'],
     ),
     # ...
 )

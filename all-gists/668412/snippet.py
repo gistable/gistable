@@ -75,17 +75,17 @@ class XFSLocker(object):
             check_call(["/usr/sbin/xfs_freeze", "-u", self.mount_point])
 
 class MongoLocker(object):
-    def __init__(self, host="localhost", port=27017, slaveonly=False, dryrun=False):
+    def __init__(self, host="localhost", port=27017, subordinateonly=False, dryrun=False):
         import pymongo.connection
-        self.connection = pymongo.connection.Connection(host, int(port), slave_okay=True)
+        self.connection = pymongo.connection.Connection(host, int(port), subordinate_okay=True)
         self.dryrun = dryrun
-        self.slaveonly = slaveonly
+        self.subordinateonly = subordinateonly
     
     def validate(self):
-        if not self.slaveonly:
+        if not self.subordinateonly:
             return True
-        info = self.connection.admin.command("isMaster")
-        return not info["ismaster"]
+        info = self.connection.admin.command("isMain")
+        return not info["ismain"]
     
     def __enter__(self):
         logging.info("Fsyncing and locking MongoDB")
@@ -111,8 +111,8 @@ class MySQLLocker(object):
         if not self.dryrun:
             c = self.connection.cursor()
 
-            # Don't pass FLUSH TABLES statements on to replication slaves
-            # as this can interfere with long-running queries on the slaves.
+            # Don't pass FLUSH TABLES statements on to replication subordinates
+            # as this can interfere with long-running queries on the subordinates.
             c.execute("SET SQL_LOG_BIN=0")
 
             c.execute("FLUSH LOCAL TABLES")

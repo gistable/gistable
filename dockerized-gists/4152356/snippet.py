@@ -186,7 +186,7 @@ p {font-size:13px;}
 <p><strong>更新内容</strong><br />
 %s</p>
 
-<p>Build on %s, by App Master</p>
+<p>Build on %s, by App Main</p>
 </body>
 </html>
     '''
@@ -281,7 +281,7 @@ def terminal_size():
 
 def send_mailgun(appName, message):
     api_url = "https://api.mailgun.net/v2/%s/messages" % EMAIL_DOMAIN;
-    data={"from": "App Master <postmaster@%s>" % EMAIL_DOMAIN,
+    data={"from": "App Main <postmain@%s>" % EMAIL_DOMAIN,
           "to": NOTIF_EMAIL,
           "subject": "%s is ready!" % appName,
           "text": "%s is ready!" % appName,

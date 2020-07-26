@@ -3,7 +3,7 @@ import MySQLdb as mysql
 from jinja2 import Template
 import unicodecsv as csv
 
-conn = mysql.connect("s1-analytics-slave.eqiad.wmnet", "research", os.environ["RESEARCH_PASSWORD"], "log")
+conn = mysql.connect("s1-analytics-subordinate.eqiad.wmnet", "research", os.environ["RESEARCH_PASSWORD"], "log")
 
 def execute(sql):
     cur = conn.cursor()

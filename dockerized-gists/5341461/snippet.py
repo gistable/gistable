@@ -107,7 +107,7 @@ class Collection(object):
 
   def create(self):
     c = self.db.cursor()
-    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (self.name,))
+    c.execute("SELECT name FROM sqlite_main WHERE type='table' AND name=?", (self.name,))
     r = c.fetchone()
     if not r or r['name'] != self.name:
       ret = c.execute("CREATE TABLE %s ( id INTEGER PRIMARY KEY AUTOINCREMENT, document BLOB )" % (self.name))

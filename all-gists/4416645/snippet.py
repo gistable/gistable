@@ -42,7 +42,7 @@ true      = 1                   # Boolean True
 # channel  = Default IRC channel
 # port     = Default IRC port number
 # server   = Default IRC server hostname
-# master   = Owner of the bot
+# main   = Owner of the bot
 # uname    = Bot username (NOT NICK!)
 # realname = Bot's real name
 
@@ -51,7 +51,7 @@ bufsize    = 2048
 channel    = "#channel"
 port       = 6667
 server     = "irc.freenode.net"
-master     = "botowner"
+main     = "botowner"
 uname      = "ircusername"
 realname   = "realname"
 
@@ -75,7 +75,7 @@ Replies ['sing'     ] = "Tra la la"
 Replies ['hello'    ] = "Hi"
 Replies ['howdy'    ] = "Hi"
 Replies ['time'     ] = "It is TIME for a RHYME"
-Replies ['master'   ] = master + " is my master"
+Replies ['main'   ] = main + " is my main"
 Replies ['bacon'    ] = "Give me some, please!"
 Replies [botnick    ] = "What do you want?"
 # You can add more replies, like so:
@@ -178,7 +178,7 @@ def Main():
         if ircmsg.find (":!say ") != -1:
             say_split = ircmsg.split ("!say ")
             sendmsg (channel, say_split [1])
-            sendmsg (master, "Message sent: " + say_split [1])
+            sendmsg (main, "Message sent: " + say_split [1])
 
         if ircmsg.find ("!commands") != -1:
             sendmsg (channel, "Commands:\n")
@@ -196,40 +196,40 @@ def Main():
         if ircmsg.find (":!nick ") != -1:
             str_split = ircmsg.split ("!nick ")
             ircsock.send ("NICK "+ str_split [1] + "\n")
-            sendmsg (master, "Nick changed to " + str_split [1] + ".")
+            sendmsg (main, "Nick changed to " + str_split [1] + ".")
 
 # send notice
         if ircmsg.find (":!sendnotice ") != -1:
             str_split = ircmsg.split ("!sendnotice ")
             ircsock.send ("NOTICE " + channel + " " + str_split [1] + "\n")
-            sendmsg (master, "Notice sent! Notice: " + str_split [1])
+            sendmsg (main, "Notice sent! Notice: " + str_split [1])
 
 # op and deop
         if ircmsg.find ("!op") != -1:
             str_split = ircmsg.split ("!op ")
             ircsock.send ("MODE " + channel + " +o " + str_split [1] + "\n")
-            sendmsg (master, "Opped " + str_split [1] + ".")
+            sendmsg (main, "Opped " + str_split [1] + ".")
 
         if ircmsg.find ("!deop") != -1:
             str_split = ircmsg.split ("!deop ")
             ircsock.send ("MODE " + channel + " -o " + str_split [1] + "\n")
-            sendmsg (master, "Deopped " + str_split [1] + ".")
+            sendmsg (main, "Deopped " + str_split [1] + ".")
 # voice
         if ircmsg.find ("!voice") != -1:
             str_split = ircmsg.split ("!voice ")
             ircsock.send ("MODE " + channel + " +v " + str_split [1] + "\n")
-            sendmsg (master, "Voiced " + str_split [1] + ".")
+            sendmsg (main, "Voiced " + str_split [1] + ".")
 
         if ircmsg.find ("!voice") != -1:
             str_split = ircmsg.split ("!voice ")
             ircsock.send ("MODE " + channel + " -v " + str_split [1] + "\n")
-            sendmsg (master, "Removed voice on " + str_split [1] + ".")
+            sendmsg (main, "Removed voice on " + str_split [1] + ".")
 
 # set topic
         if ircmsg.find ("!topic") != -1:
             str_split = ircmsg.split ("!topic ")
             ircsock.send ("TOPIC " + channel + " " + str_split [1] + "\n")
-            sendmsg (master, "Topic set to: " + str_split [1] + ".")
+            sendmsg (main, "Topic set to: " + str_split [1] + ".")
 
 #---------------------------------------------------------------------
 # Main program.

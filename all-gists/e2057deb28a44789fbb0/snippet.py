@@ -30,7 +30,7 @@ class GSparkTestCase(unittest.TestCase):
         conf = SparkConf()
         conf.set("spark.executor.memory","1g")
         conf.set("spark.cores.max", "1")
-        #conf.set("spark.master", "spark://192.168.1.2:7077")
+        #conf.set("spark.main", "spark://192.168.1.2:7077")
         conf.set("spark.app.name", "nosetest")
         self.sc = SparkContext(conf=conf)
 

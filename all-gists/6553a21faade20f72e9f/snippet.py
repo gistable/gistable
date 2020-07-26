@@ -279,7 +279,7 @@ class FT232H(GPIO.BaseGPIO):
         # Compute divisor for requested clock.
         # Use equation from section 3.8.1 of:
         #  http://www.ftdichip.com/Support/Documents/AppNotes/AN_108_Command_Processor_for_MPSSE_and_MCU_Host_Bus_Emulation_Modes.pdf
-        # Note equation is using 60mhz master clock instead of 12mhz.
+        # Note equation is using 60mhz main clock instead of 12mhz.
         divisor = int(math.ceil((30000000.0-float(clock_hz))/float(clock_hz))) & 0xFFFF
         if three_phase:
             divisor = int(divisor*(2.0/3.0))

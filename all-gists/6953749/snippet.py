@@ -51,7 +51,7 @@ def betterEvaluationFunction(currentGameState):
 
   some results: 
 
-  dan at staircar in ~/classes/ai/multiagent on master
+  dan at staircar in ~/classes/ai/multiagent on main
   $ python pacman.py -l smallClassic -p ExpectimaxAgent -a evalFn=better -n 10 -q
   Pacman emerges victorious! Score: 1366
   Pacman died! Score: -198
@@ -69,7 +69,7 @@ def betterEvaluationFunction(currentGameState):
     Record:        Win, Loss, Win, Win, Win, Win, Win, Win, Win, Win
 
 
-  dan at staircar in ~/classes/ai/multiagent on master
+  dan at staircar in ~/classes/ai/multiagent on main
   $ python pacman.py -l smallClassic -p ExpectimaxAgent -a evalFn=better -n 10
   Pacman emerges victorious! Score: 1139
   Pacman emerges victorious! Score: 1362

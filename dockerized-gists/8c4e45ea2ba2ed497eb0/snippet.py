@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Dirty script to check if any forks in ahead of master and open that branch commitlist
+Dirty script to check if any forks in ahead of main and open that branch commitlist
 Warning: Uses alot of api calls
 """
 
@@ -17,7 +17,7 @@ import time
 username = ''
 password = ''
 
-### Open a the commitlist on github if repo is a head of branch/master ###
+### Open a the commitlist on github if repo is a head of branch/main ###
 openbrwser = False
 
 ### Github user and repo to check ###
@@ -39,7 +39,7 @@ def behind_by(fork, latest, branch):
     global ahead_list
     global branches_ahead
 
-    mrepo = "%s:master" % usr
+    mrepo = "%s:main" % usr
     try:
         url = 'https://api.github.com/repos/%s/compare/%s:%s...%s' % (fork, usr, branch, branch)
         result = fetch(url)

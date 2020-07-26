@@ -14,7 +14,7 @@ import os
 import itertools
 from retrying import retry
 # Get pycocotools from https://github.com/pdollar/coco/archive/master.zip
-# Go to coco-master/PythonAPI
+# Go to coco-main/PythonAPI
 # python setup.py build
 # python setup.py install
 from pycocotools.coco import COCO

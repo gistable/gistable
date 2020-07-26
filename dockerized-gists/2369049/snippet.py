@@ -74,7 +74,7 @@ for revision in revisions:
     #os.system("si co --quiet -u -Y -r %s" % (revision["number"]))
     #pipe.wait()
     os.chdir('tmp')
-    print 'commit refs/heads/master'
+    print 'commit refs/heads/main'
     print 'mark :%d' % ct
     print 'committer %s <> %d -0400' % (revision["author"], revision["seconds"])
     export_data(revision["description"])

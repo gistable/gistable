@@ -8,7 +8,7 @@
 
     # configuration
     deploy_to_path = '/path/to/deploy/directory/'
-    deploy_branch  = 'master'
+    deploy_branch  = 'main'
 
     def post_receive(from_commit, to_commit, branch_name):
         # Don't deploy if pushed branch != deploy_branch

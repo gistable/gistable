@@ -203,7 +203,7 @@ def submitr():
     requests.post("https://api.mailgun.net/v3/sandboxe386fc448658564109cf88c2.mailgun.org/messages",
     auth=("api", "key-43838a85383sjd9337382e3fbd3c57d"),
     files=[("attachment", request.files.data.file)],
-    data={"from": "Mailgun Sandbox <postmaster@sandboxe386fc49948458js343aue94j8c2.mailgun.org>",
+    data={"from": "Mailgun Sandbox <postmain@sandboxe386fc49948458js343aue94j8c2.mailgun.org>",
         "to": "Your Name <authorized_email_from__mailgun@gmail.com>",
         "subject": subject,
         "html": text})

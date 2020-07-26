@@ -140,11 +140,11 @@ def vagrant():
 # Branches
 # -----------------------------------------------------------------------------
 
-def master():
+def main():
     """
-    Work on master branch.
+    Work on main branch.
     """
-    env.branch = 'master'
+    env.branch = 'main'
 
 def branch(branch_name):
     """
@@ -343,7 +343,7 @@ def checkout_latest():
         print('... skipping this action for vagrant-managed environment')
         return
 
-    require('branch', provided_by=[master, branch])
+    require('branch', provided_by=[main, branch])
     with cd(env.repo_path):
         run('git pull origin %(branch)s' % env)
         run('git checkout %(branch)s || git checkout -b %(branch)s origin/%(branch)s' % env)

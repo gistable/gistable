@@ -7,8 +7,8 @@ import shutil
 import subprocess
 import stat
 
-def get_wav_text(subdir, master_transcript=None):
-    # master transcript check is to correct messed up text -> wav mapping in
+def get_wav_text(subdir, main_transcript=None):
+    # main transcript check is to correct messed up text -> wav mapping in
     # certain dirs :|
     if subdir[-1] != "/":
         subdir += "/"
@@ -42,15 +42,15 @@ def get_wav_text(subdir, master_transcript=None):
     if len(wav_files) == len(lines):
         return wav_files, lines
     else:
-        with open(master_transcript, "r") as f:
+        with open(main_transcript, "r") as f:
             ll = f.readlines();
 
         speaker_name = str(txt_file[:-4])
-        master_names = [lil.strip().split(">")[-1].split("(")[1].split(")")[0] for lil in ll]
-        master_lines = [lil.strip().split(">")[1][1:].split("<")[0][:-1] for lil in ll]
-        master_lines = [l.strip().replace("(2)", "`") for l in master_lines]
-        master_lines = [l.strip().replace("(3)", "```") for l in master_lines]
-        name_to_line = {k: v for k, v in zip(master_names, master_lines)}
+        main_names = [lil.strip().split(">")[-1].split("(")[1].split(")")[0] for lil in ll]
+        main_lines = [lil.strip().split(">")[1][1:].split("<")[0][:-1] for lil in ll]
+        main_lines = [l.strip().replace("(2)", "`") for l in main_lines]
+        main_lines = [l.strip().replace("(3)", "```") for l in main_lines]
+        name_to_line = {k: v for k, v in zip(main_names, main_lines)}
 
         match_lines = []
         missing_indices = []
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     bangla_base_dir = basedir + "bangla_speech/"
     bangla_main_dir = bangla_base_dir + "SHRUTI-Bangla Speech Corpus/"
 
-    master_transcript = bangla_main_dir + "etc/shruti_train.transcription"
+    main_transcript = bangla_main_dir + "etc/shruti_train.transcription"
 
     wav_main_dir = bangla_main_dir + "WAV/"
     wav_male_dir = wav_main_dir + "MALE/"
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     for subdir in wav_male_subdirs:
         print("Writing out male %s..." % subdir)
         full_subdir = wav_male_dir + subdir
-        wav_paths, text_lines = get_wav_text(full_subdir, master_transcript)
+        wav_paths, text_lines = get_wav_text(full_subdir, main_transcript)
         write_out_wav_text(wav_paths, text_lines, tag="%s_%s" % ("male", subdir))
 
     wav_female_dir = wav_main_dir + "FEMALE/"
@@ -122,5 +122,5 @@ if __name__ == "__main__":
     for subdir in wav_female_subdirs:
         print("Writing out female %s..." % subdir)
         full_subdir = wav_female_dir + subdir
-        wav_paths, text_lines = get_wav_text(full_subdir, master_transcript)
+        wav_paths, text_lines = get_wav_text(full_subdir, main_transcript)
         write_out_wav_text(wav_paths, text_lines, tag="%s_%s" % ("female", subdir))

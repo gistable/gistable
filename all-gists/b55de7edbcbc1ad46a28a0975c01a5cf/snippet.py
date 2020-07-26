@@ -33,15 +33,15 @@ class Ext_Func:
 
 
 class ExportQ_GUI:
-	def __init__(self,master):
-		master.title('Inseritore Query')
-		master.resizable(False, False)
-		master.configure(background='grey30')
+	def __init__(self,main):
+		main.title('Inseritore Query')
+		main.resizable(False, False)
+		main.configure(background='grey30')
 		self.l1 = Label(root, text='DB file : ',background='grey30',fg='yellow', font='helvetica 10 bold')
 		self.e1 = Entry(root)
 		self.l3 = Label(root, text='Query : ',background='grey30',fg='yellow', font='helvetica 10 bold')
 		self.t1 = Text(root)
-		self.butbro = Button(master, text='browse', command=self.BrowserFile)
+		self.butbro = Button(main, text='browse', command=self.BrowserFile)
 
 		# self.t1.tag_configure("keyword", foreground="#229954", font=('arial black', 10))
 
@@ -55,7 +55,7 @@ class ExportQ_GUI:
 		self.t1.grid(row=1, column=1, columnspan=2,pady=3)
 		
 		# aggiunta degli ultimi bottoni
-		self.butread=Button(master, text='Looks at the result of the query', font='helvetica 10 bold', command=self.Reader)
+		self.butread=Button(main, text='Looks at the result of the query', font='helvetica 10 bold', command=self.Reader)
 		self.b1 = Button(root, text='Export Query', command=self.Save, font='helvetica 10 bold')
 		self.butread.grid(row=2, column=0, sticky=W, ipadx = 40, padx=60, columnspan=2)
 		self.b1.grid(row=2, column=1, ipadx = 90, sticky=E, padx=50, columnspan=2)

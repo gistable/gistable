@@ -33,7 +33,7 @@ class CycriptBot(irc.IRCClient):
         # Otherwise check to see if it is a message directed at me
         highlight = self.nickname + ":"
         if msg.startswith(highlight):
-            if user == self.factory.master:
+            if user == self.factory.main:
                 msg = msg[len(highlight):]
                 msg = self.sendCommand(msg)
                 self.msg(channel, msg)
@@ -44,9 +44,9 @@ class CycriptBot(irc.IRCClient):
 class CycriptBotFactory(protocol.ClientFactory):
     protocol = CycriptBot
 
-    def __init__(self, master, channel):
+    def __init__(self, main, channel):
         self.channel = channel
-        self.master = master
+        self.main = main
 
     def clientConnectionLost(self, connector, reason):
         connector.connect()

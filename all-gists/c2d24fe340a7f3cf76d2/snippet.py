@@ -2,9 +2,9 @@ from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql import Row, StructField, StructType, StringType, IntegerType
 
-sc = SparkContext('spark://master:7077', 'Spark SQL Intro')
+sc = SparkContext('spark://main:7077', 'Spark SQL Intro')
 sqlContext = SQLContext(sc)
-dividends = sc.textFile("hdfs://master:9000/user/hdfs/NYSE_dividends_A.csv")
+dividends = sc.textFile("hdfs://main:9000/user/hdfs/NYSE_dividends_A.csv")
 dividends_parsed = dividends.filter(lambda r: not r.startswith('exchange')).map(lambda r: r.split(',')).map(
   lambda row: {'exchange': row[0], 'stock_symbol': row[1], 'date': row[2], 'dividends': float(row[3])})
 
@@ -13,7 +13,7 @@ dividends_schema.printSchema()
 dividends_schema.registerAsTable('dividends')
 result = sqlContext.sql('SELECT * from dividends LIMIT 10').collect()
 
-daily_prices = sc.textFile("hdfs://master:9000/user/hdfs/NYSE_daily_prices_A.csv")
+daily_prices = sc.textFile("hdfs://main:9000/user/hdfs/NYSE_daily_prices_A.csv")
 columns = daily_prices.take(1)[0].split(',')
 daily_prices_parsed = daily_prices.filter(lambda r: not r.startswith('exchange')).map(lambda r: r.split(',')).map(
 lambda row: {columns[0]: row[0], columns[1]: row[1], columns[2]: row[2],

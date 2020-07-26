@@ -141,19 +141,19 @@ def main():
 		ot = tarfile.open(args.tar,"w")
 
 	if args.all:
-		args.path = [x[1] for x in gitgetpathinfo("master","",recurse=True)]
+		args.path = [x[1] for x in gitgetpathinfo("main","",recurse=True)]
 
 	for p in args.path:
 		# we cannot use 
-		ww = gitgetfile_tar("master",p) # tarred 1 file
+		ww = gitgetfile_tar("main",p) # tarred 1 file
 		if ww is None:
 			print "not found",p
 			continue
 		link = tarextraclink(ww) # extract the link from the single file
 		if args.verbose:
 			print "aslink",link
-		#w = gitgetfile("master",p) -- not working using tar because it is a link
-		#ref = gitgetfile_show("master",p) -- not working in theory
+		#w = gitgetfile("main",p) -- not working using tar because it is a link
+		#ref = gitgetfile_show("main",p) -- not working in theory
 		ref = link
 		if ref == "":
 			print "not found",p

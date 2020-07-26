@@ -19,7 +19,7 @@ def heroku_deploy(scale='yes', runtime='no', runtime_version=None):
     """
     if runtime == 'yes':
         heroku_runtime(version=runtime_version)
-    local('git push heroku master')
+    local('git push heroku main')
     if scale == 'yes':
         local('heroku ps:scale web=1')
 

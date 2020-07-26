@@ -295,7 +295,7 @@ class SimpleTriggerStep(SafeTrigger, StepUtilMixin):
         '''
         Return list of available triggerable scheduler name.
         '''
-        return sorted([x.name for x in self.build.builder.botmaster.parent.allSchedulers()
+        return sorted([x.name for x in self.build.builder.botmain.parent.allSchedulers()
                        if isinstance(x, Triggerable)])
 
     def _printErrorOutputOnUnknownScheduler(self):
@@ -322,6 +322,6 @@ class SimpleTriggerStep(SafeTrigger, StepUtilMixin):
 
     def getWorkdir(self):
         '''
-        Method needed to be able to use some method from StepUtilMixin such as uploadFileFromSlave
+        Method needed to be able to use some method from StepUtilMixin such as uploadFileFromSubordinate
         '''
         return os.path.join(self.getProperty("workdir"), self.build.workdir)
