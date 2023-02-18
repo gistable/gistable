@@ -115,7 +115,7 @@ def build_user_file(user_name,):
 
     for friend in friends:
         dict = {'friendName': friend[u'friend'], 'friendEmail': friend[u'friend_email'],
-                'masterEmail': friend[u'master_email'], 'status': friend[u'status']}
+                'mainEmail': friend[u'main_email'], 'status': friend[u'status']}
 
         formatted_friends.append(dict)
 
@@ -155,18 +155,18 @@ def generate_friend_list(user_name):
         if "@" in friend[u'friend']:  # Crappy API is crappy
             continue
 
-        if "@" in friend[u'master']:  # Crappy API is crappy
+        if "@" in friend[u'main']:  # Crappy API is crappy
             continue
 
         if " " in friend[u'friend']:  # Crappy API is crappy
             continue
 
-        if " " in friend[u'master']:  # Crappy API is crappy
+        if " " in friend[u'main']:  # Crappy API is crappy
             continue
 
         if friend[u'friend'].lower() == user_name.lower():
-            unfiltered.append(friend[u'master'])
-        elif friend[u'master'].lower() == user_name.lower():
+            unfiltered.append(friend[u'main'])
+        elif friend[u'main'].lower() == user_name.lower():
             unfiltered.append(friend[u'friend'])
 
     return unfiltered

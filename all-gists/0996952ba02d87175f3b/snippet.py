@@ -48,7 +48,7 @@ def filterurl(url, char):
 # This dictionary is a straight copy of the data from Pocket, but
 # with only the ID and URL properties.
 # It will also strip all of the extra social media crap from each URL.
-masterdict = {}
+maindict = {}
 
 for item in items_list[0]['list']:
     article_id = items_list[0]['list'][item]['item_id']
@@ -58,13 +58,13 @@ for item in items_list[0]['list']:
     article_url = filterurl(article_url, '?utm')
     #article_url = filterurl(article_url, '#')
 
-    masterdict[article_id] = article_url
+    maindict[article_id] = article_url
 
 # This dictionary will hold only unique entries
 filtereddict = {}
 
 # This loop will find the duplicate URLs and delete them from the list
-for k, v in masterdict.iteritems():
+for k, v in maindict.iteritems():
     if not v in filtereddict.values():
         filtereddict[k] = v
     else:

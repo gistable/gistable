@@ -5,7 +5,7 @@ import autograd.numpy as anp
 import numpy as np
 from autograd import elementwise_grad, jacobian
 from sympy import lambdify
-# NumPyPrinter requires unreleased sympy 0.7.7 (in sympy master)
+# NumPyPrinter requires unreleased sympy 0.7.7 (in sympy main)
 # if you aren't using Piecewise or logical operators
 # you can change NumPyPrinter to LambdaPrinter in this module
 from sympy.printing.lambdarepr import NumPyPrinter

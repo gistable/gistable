@@ -69,9 +69,9 @@ class Model:
 
 
 class View(tk.Toplevel):
-    def __init__(self, master):
-        tk.Toplevel.__init__(self, master)
-        self.protocol('WM_DELETE_WINDOW', self.master.destroy)
+    def __init__(self, main):
+        tk.Toplevel.__init__(self, main)
+        self.protocol('WM_DELETE_WINDOW', self.main.destroy)
         tk.Label(self, text='My Money').pack(side='left')
         self.moneyCtrl = tk.Entry(self, width=8)
         self.moneyCtrl.pack(side='left')
@@ -82,8 +82,8 @@ class View(tk.Toplevel):
 
 
 class ChangerWidget(tk.Toplevel):
-    def __init__(self, master):
-        tk.Toplevel.__init__(self, master)
+    def __init__(self, main):
+        tk.Toplevel.__init__(self, main)
         self.addButton = tk.Button(self, text='Add', width=8)
         self.addButton.pack(side='left')
         self.removeButton = tk.Button(self, text='Remove', width=8)

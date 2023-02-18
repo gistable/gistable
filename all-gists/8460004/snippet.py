@@ -41,7 +41,7 @@ class RedisSentinelBackend(RedisBackend):
     def client(self):
         sentinel = Sentinel(self.sentinels, min_other_sentinels=self.min_other_sentinels,
                             password=self.password, sentinel_kwargs={"socket_timeout": self.sentinel_timeout})
-        return sentinel.master_for(self.service_name, redis_class=Redis, socket_timeout=self.socket_timeout)
+        return sentinel.main_for(self.service_name, redis_class=Redis, socket_timeout=self.socket_timeout)
 
 
 class SentinelChannel(Channel):
@@ -64,7 +64,7 @@ class SentinelChannel(Channel):
             password=getattr(self, "password", None),
             sentinel_kwargs={"socket_timeout": getattr(self, "sentinel_timeout", None)},
         )
-        return sentinel.master_for(self.service_name, self.Client,
+        return sentinel.main_for(self.service_name, self.Client,
                                    socket_timeout=self.socket_timeout).connection_pool
 
     def _get_pool(self):

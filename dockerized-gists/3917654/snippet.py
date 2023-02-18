@@ -62,7 +62,7 @@ fetch the created branch.
     >>> repo.object_store.add_object(second_tree)
     >>> repo.object_store.add_object(second_commit)
     >>>
-    >>> repo.refs['refs/heads/master'] = second_commit.id
+    >>> repo.refs['refs/heads/main'] = second_commit.id
     >>>
     >>> os.remove(repo.object_store._get_shafile_path(second_tree.id))
     >>>

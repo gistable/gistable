@@ -35,7 +35,7 @@ repos = {
   #}
   #...
   'jakewharton.com': {
-    'master': '/home/jakewharton/jakewharton.com/',
+    'main': '/home/jakewharton/jakewharton.com/',
     'dev'   : '/home/jakewharton/dev.jakewharton.com/',
   }
 }

@@ -17,7 +17,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(HOOK_DIR))
 def getChangeList():
     """Retrieve the active Git change-list
     """
-    files = subprocess.Popen(['git', 'diff', '--name-status', 'master@{1}'], stdout=subprocess.PIPE)
+    files = subprocess.Popen(['git', 'diff', '--name-status', 'main@{1}'], stdout=subprocess.PIPE)
     results = files.stdout.read()
     return results
 

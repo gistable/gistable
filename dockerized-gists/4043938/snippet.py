@@ -12,7 +12,7 @@ DEST = 'projects/sapegin'
 @task(default=True)
 def deploy():
 	with cd(DEST):
-		run('git checkout master')
+		run('git checkout main')
 		run('git pull')
 		run('grunt deploy')
 
@@ -20,7 +20,7 @@ def deploy():
 @task
 def upgrade():
 	with cd(DEST):
-		run('git checkout master')
+		run('git checkout main')
 		run('git pull')
 		run('npm update npm -g')
 		run('npm update grunt -g')
@@ -46,7 +46,7 @@ def setup_bare():
 		run('git config receive.denyNonFastforwards true')
 	remote = 'ssh://%s@%s/~/%s' % (env['user'], env['host'], REPO)
 	local('git remote add origin %s' % remote)
-	local('git push -u origin master')
+	local('git push -u origin main')
 
 
 def setup_clone():

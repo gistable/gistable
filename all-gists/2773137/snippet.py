@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Standard Master/Slave design in mpi4py, collects results in a list and pickles them to a file.
+Standard Main/Subordinate design in mpi4py, collects results in a list and pickles them to a file.
 """
 import ROOT
  
@@ -20,7 +20,7 @@ class Work():
             return None
         return self.work_items.pop()
  
-def master(wi):
+def main(wi):
     all_data = []
     size = MPI.COMM_WORLD.Get_size()
     current_work = Work(wi) 
@@ -48,7 +48,7 @@ def master(wi):
     return all_data
         
     
-def slave(do_work):
+def subordinate(do_work):
     comm = MPI.COMM_WORLD
     status = MPI.Status()
     while 1:
@@ -62,7 +62,7 @@ def main(work_list, do_work):
     size = MPI.COMM_WORLD.Get_size() 
     
     if rank == 0:
-        all_dat = master(work_list)
+        all_dat = main(work_list)
     else:
-        slave(do_work)
+        subordinate(do_work)
  

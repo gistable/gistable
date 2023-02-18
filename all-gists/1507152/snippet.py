@@ -58,7 +58,7 @@ if __name__ == "__main__":
     dangerous_files = {}
     commits = matches = 1
 
-    for commit in repo.iter_commits('master'):
+    for commit in repo.iter_commits('main'):
         if commits == 1 or commits % 100 == 0:
             print(commits, end='')
         elif commits % 10:

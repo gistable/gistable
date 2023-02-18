@@ -4,7 +4,7 @@ import smtplib
 import json
 from email.mime.text import MIMEText
 
-MAILGUN_SMTP_LOGIN = "postmaster@revolunet.mailgun.org"
+MAILGUN_SMTP_LOGIN = "postmain@revolunet.mailgun.org"
 MAILGUN_SMTP_PASSWORD = "secret"
 
 def send_message_via_smtp(from_, to, mime_string):

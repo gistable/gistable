@@ -12,7 +12,7 @@ def new_task(offer):
     task = mesos_pb2.TaskInfo()
     id = uuid.uuid4()
     task.task_id.value = str(id)
-    task.slave_id.value = offer.slave_id.value
+    task.subordinate_id.value = offer.subordinate_id.value
     task.name = "task {}".format(str(id))
 
     cpus = task.resources.add()
@@ -30,7 +30,7 @@ def new_task(offer):
 
 class HelloWorldScheduler(Scheduler):
 
-    def registered(self, driver, framework_id, master_info):
+    def registered(self, driver, framework_id, main_info):
         logging.info("Registered with framework id: {}".format(framework_id))
 
     def resourceOffers(self, driver, offers):
@@ -54,6 +54,6 @@ if __name__ == '__main__':
     driver = MesosSchedulerDriver(
         HelloWorldScheduler(),
         framework,
-        "zk://localhost:2181/mesos"  # assumes running on the master
+        "zk://localhost:2181/mesos"  # assumes running on the main
     )
     driver.run()

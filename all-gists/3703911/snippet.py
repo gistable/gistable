@@ -3,7 +3,7 @@
 import numpy.random as random
 from bisect import bisect_left, bisect_right 
 
-class SlaveNode:
+class SubordinateNode:
     def __init__ (self, data):
         self.data = sorted(data)
 
@@ -15,7 +15,7 @@ class SlaveNode:
         r = bisect_right (self.data, k)
         return l, r, k if r>l else (self.data[l-1] if l>0 else None)
         
-class MasterNode:
+class MainNode:
     def __init__ (self, data_nodes):
         assert (len(data_nodes) >= 1)
         self.data_nodes = data_nodes
@@ -57,9 +57,9 @@ class MasterNode:
 
 for i in xrange(100):
     data   = random.randint(0, 500, 1000)
-    slaves = [SlaveNode(data[10*i:10*(i+1)]) for i in range(100)]
-    master = MasterNode(slaves)
+    subordinates = [SubordinateNode(data[10*i:10*(i+1)]) for i in range(100)]
+    main = MainNode(subordinates)
 
     idx    = random.randint(1,1001)
-    ret    = master.get_nth_element(idx)
+    ret    = main.get_nth_element(idx)
     assert (ret == sorted(data)[idx-1])

@@ -59,9 +59,9 @@ rdns_entries.append((subnet.combine_with(IPv6Address("::2")), "host2."+host))
 record_ttl = "1h"
 from datetime import datetime
 zone_serial = datetime.now().strftime("%Y%m%d%H%M%S")
-slave_refresh_interval = "1h"
-slave_retry_interval = "15m"
-slave_expiration_time = "1w"
+subordinate_refresh_interval = "1h"
+subordinate_retry_interval = "15m"
+subordinate_expiration_time = "1w"
 nxdomain_cache_time = "1h"
 
 ### Begin of the output generation
@@ -73,9 +73,9 @@ print("$TTL %s	; Default TTL" % record_ttl )
 
 print("@	IN	SOA	%s	%s (" % (first_name_server, administrative_contact) )
 print("	%s	; serial" % zone_serial)
-print("	%s	; slave refresh interval" % slave_refresh_interval)
-print("	%s	; slave retry interval" % slave_retry_interval)
-print("	%s	; slave copy expire time" % slave_expiration_time)
+print("	%s	; subordinate refresh interval" % subordinate_refresh_interval)
+print("	%s	; subordinate retry interval" % subordinate_retry_interval)
+print("	%s	; subordinate copy expire time" % subordinate_expiration_time)
 print("	%s	; NXDOMAIN cache time" % nxdomain_cache_time)
 print("	)")
 

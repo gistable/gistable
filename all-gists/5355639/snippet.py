@@ -3,9 +3,9 @@ from Tkinter import *
 
 
 class App:
-    def __init__(self, master):
-        self.master = master
-        frame = Frame(master)
+    def __init__(self, main):
+        self.main = main
+        frame = Frame(main)
         frame.pack()
 
         self.trend_string = StringVar()
@@ -45,7 +45,7 @@ class App:
         for trend in dict_list:
             del self.trend_dict[trend]
         self.trend_string.set(temp_string)
-        self.master.after(60000, self.trend_loop)
+        self.main.after(60000, self.trend_loop)
         self.update_string.set('Last Updated: %s' % time.strftime('%H:%M:%S', time.localtime()))
 
     

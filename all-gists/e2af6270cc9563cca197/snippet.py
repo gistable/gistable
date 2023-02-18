@@ -1,44 +1,44 @@
 import os
 
 from twisted.application import service
-from buildbot.master import BuildMaster
-from buildslave.bot import BuildSlave
+from buildbot.main import BuildMain
+from buildsubordinate.bot import BuildSubordinate
 
-# setup master
+# setup main
 basedir = os.path.abspath(os.path.dirname(__file__))
-configfile = 'master.cfg'
+configfile = 'main.cfg'
 
 # Default umask for server
 umask = None
 
-# note: this line is matched against to check that this is a buildmaster
+# note: this line is matched against to check that this is a buildmain
 # directory; do not edit it.
-application = service.Application('buildmaster')
+application = service.Application('buildmain')
 import sys
 
 from twisted.python.log import ILogObserver, FileLogObserver
 
 application.setComponent(ILogObserver, FileLogObserver(sys.stdout).emit)
 
-m = BuildMaster(basedir, configfile, umask)
+m = BuildMain(basedir, configfile, umask)
 m.setServiceParent(application)
 
-# and slave on the same process!
+# and subordinate on the same process!
 
-buildmaster_host = 'localhost'
+buildmain_host = 'localhost'
 port = 19989
-slavename = 'example-slave'
+subordinatename = 'example-subordinate'
 passwd = 'pass'
 keepalive = 600
 usepty = 0
 umask = None
 maxdelay = 300
 allow_shutdown = None
-slavedir = os.path.join(basedir, "slave")
-if not os.path.exists(slavedir):
-    os.mkdir(slavedir)
+subordinatedir = os.path.join(basedir, "subordinate")
+if not os.path.exists(subordinatedir):
+    os.mkdir(subordinatedir)
 
-s = BuildSlave(buildmaster_host, port, slavename, passwd, slavedir,
+s = BuildSubordinate(buildmain_host, port, subordinatename, passwd, subordinatedir,
                keepalive, usepty, umask=umask, maxdelay=maxdelay,
                allow_shutdown=allow_shutdown)
 s.setServiceParent(application)

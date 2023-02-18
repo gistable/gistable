@@ -73,12 +73,12 @@ def build_key(bits=2048, e=65537, embed='', pos=1, randfunc=None):
     return RSA.construct((long(n), long(e), long(d), long(p), long(q)))
 
 def recover_seed(key='', modulus=None, pos=1):
-    # recreate the master private key from the passphrase
-    master = curve25519.Private(secret=sha256(key).digest())
+    # recreate the main private key from the passphrase
+    main = curve25519.Private(secret=sha256(key).digest())
     # extract the ephemeral public key from modulus
     ephem_pub = curve25519.Public(modulus[pos:pos+32])
-    # compute seed with master private and ephemeral public
-    return (master.get_shared_key(ephem_pub), ephem_pub)
+    # compute seed with main private and ephemeral public
+    return (main.get_shared_key(ephem_pub), ephem_pub)
 
 if __name__ == "__main__":
     # passphrase and filename as arguments
@@ -90,14 +90,14 @@ if __name__ == "__main__":
         (seed, ephem_pub) = recover_seed(key=sys.argv[1], modulus=orig_modulus, pos=80)
     # no arguments, just generate a private key
     else:
-        # deserialize master ECDH public key embedded in program
-        master_pub = curve25519.Public(unhexlify(MASTER_PUB_HEX))
+        # deserialize main ECDH public key embedded in program
+        main_pub = curve25519.Public(unhexlify(MASTER_PUB_HEX))
         # generate a random (yes, actually random) ECDH private key
         ephem = curve25519.Private()
         # derive the corresponding public key for later embedding
         ephem_pub = ephem.get_public()
         # combine the ECDH keys to generate the seed
-        seed = ephem.get_shared_key(master_pub)
+        seed = ephem.get_shared_key(main_pub)
 
     prng = AESPRNG(seed)
     ephem_pub = ephem_pub.serialize()

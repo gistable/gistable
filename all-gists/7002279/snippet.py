@@ -25,7 +25,7 @@ commits_by_author = {}
 
 def pack_git_commit():
     repo = Repo(GIT_PATH)
-    commit = repo.heads.master.commit
+    commit = repo.heads.main.commit
 
     def track_commit(commit_ref):
         commit_time = commit_ref.committed_date

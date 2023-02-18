@@ -16,7 +16,7 @@
 # https://gist.github.com/pudquick/8ad859f30438f3be149fe9751391d037
 # https://gist.github.com/pudquick/4cf32c2b403bf0be23b268d6dd3cf803
 # https://github.com/mosen/moobjc-framework-Security/blob/
-# master/metadata/Security.fwinfo
+# main/metadata/Security.fwinfo
 # https://github.com/mosen/meap/blob/master/meap/eap8021x/_metadata.py
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #

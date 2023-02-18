@@ -248,7 +248,7 @@ if __name__ == "__main__":
         glUseProgram(0)
         glBindVertexArray(0)
 
-        # Now lets show our master piece on the screen
+        # Now lets show our main piece on the screen
         SwapBuffers()
 
         # If the user has closed the window in anger

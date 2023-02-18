@@ -23,7 +23,7 @@ dag = DAG('dbt', start_date=start_date, schedule_interval=schedule_interval, def
 
 dbt_clone = BashOperator(
     task_id='dbt_clone',
-    bash_command='cd ~/project && git fetch --all && git reset --hard origin/master',
+    bash_command='cd ~/project && git fetch --all && git reset --hard origin/main',
     dag=dag
 )
 

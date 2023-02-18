@@ -31,7 +31,7 @@ def cost_of_state(state):
             i == 0 and h[NAT] == 'norwegian',
             h[CIG] == 'blends' and ((i > 0 and state[i-1][ANI] == 'cat') or (i < 4 and state[i+1][ANI] == 'cat')),
             h[ANI] == 'horse' and ((i > 0 and state[i-1][CIG] == 'dunhill') or (i < 4 and state[i+1][CIG] == 'dunhill')),
-            h[CIG] == 'blue master' and h[BEV] == 'root beer',
+            h[CIG] == 'blue main' and h[BEV] == 'root beer',
             h[NAT] == 'german' and h[CIG] == 'prince',
             h[NAT] == 'norwegian' and ((i > 0 and state[i-1][COL] == 'blue') or (i < 4 and state[i+1][COL] == 'blue')),
             h[CIG] == 'blends' and ((i > 0 and state[i-1][BEV] == 'water') or (i < 4 and state[i+1][BEV] == 'water')),
@@ -64,7 +64,7 @@ def main():
     colours       = [ 'yellow',    'red',    'white',       'green',     'blue'      ]
     animals       = [ 'horse',     'cat',    'bird',        'fish',      'dog'       ]
     beverages     = [ 'water',     'tea',    'milk',        'coffee',    'root beer' ]
-    cigars        = [ 'pall mall', 'prince', 'blue master', 'dunhill',   'blends'    ]
+    cigars        = [ 'pall mall', 'prince', 'blue main', 'dunhill',   'blends'    ]
 
     attributes = [nationalities, colours, animals, beverages, cigars]
 

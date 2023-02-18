@@ -46,7 +46,7 @@ proc_name = 'gunicorn'
 # Internal setting that is adjusted for each type of application.
 default_proc_name = 'gunicorn'
 
-# Called just before the master process is initialized.
+# Called just before the main process is initialized.
 def on_starting(server):
     pass
 
@@ -62,7 +62,7 @@ def pre_fork(server, worker):
 def post_fork(server, worker):
     pass
 
-# Called just before a new master process is forked.
+# Called just before a new main process is forked.
 def pre_exec(server):
     pass
 

@@ -3,7 +3,7 @@ import subprocess
 import os
 import sys
 
-DO_NOT_DELETE_BRANCHES = ['master',]
+DO_NOT_DELETE_BRANCHES = ['main',]
 SRC_DIRECTORY = '/Users/Saurabh/f6/trunk/f6/'
 GIT_BINARY_LOCATION = '/usr/bin/git'
 pr = subprocess.Popen(

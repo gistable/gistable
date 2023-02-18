@@ -11,10 +11,10 @@ import datetime
 
 APPLICATION_ID = "" #APP Key
 REST_API_KEY = "" #REST API Key
-MASTER_KEY = "" #Master Key
+MASTER_KEY = "" #Main Key
 CLASSES = "TableName" #Enter comma seperated classnames here, ex "User,Role" etc! Don't add space after/before comma.
 
-def getData(app_id, rest_api_key, api_endpoint, master_key=None, limit=1000, order=None, skip=None, filter_json=None, api_version=1):
+def getData(app_id, rest_api_key, api_endpoint, main_key=None, limit=1000, order=None, skip=None, filter_json=None, api_version=1):
     con = httplib.HTTPSConnection('api.parse.com', 443)
     con.connect()
 
@@ -22,8 +22,8 @@ def getData(app_id, rest_api_key, api_endpoint, master_key=None, limit=1000, ord
                    'X-Parse-REST-API-Key': rest_api_key
                    }
 
-    if master_key is not None:
-        header_dict['X-Parse-Master-Key'] = master_key
+    if main_key is not None:
+        header_dict['X-Parse-Main-Key'] = main_key
 
     params_dict = {}
     if order is not None:
@@ -73,7 +73,7 @@ def main():
             startTimer = time.clock()
 	          skip = skip_count*limit #Increment for skip
 	    
-            response = getData(APPLICATION_ID, REST_API_KEY, endpoint, master_key=MASTER_KEY, limit = limit, skip = skip)
+            response = getData(APPLICATION_ID, REST_API_KEY, endpoint, main_key=MASTER_KEY, limit = limit, skip = skip)
 
             if 'results' in response.keys() and len(response['results']) > 1:
                 object_count += len(response['results'])

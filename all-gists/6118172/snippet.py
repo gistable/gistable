@@ -44,7 +44,7 @@ def sdl_view():
     activity.setContentView(activity.mView)
 
 def run(f, *args, **kwargs):
-    # args/kwargs to runnable was a bug, fixed in master
+    # args/kwargs to runnable was a bug, fixed in main
     Runnable(f)(args, kwargs)
 
 run(create_clock)

@@ -149,8 +149,8 @@ def redeploy():
 def upload_tar_from_git(path):
     require('release', provided_by=[environment])
     require('whole_path', provided_by=[environment])
-    "Create an archive from the current Git master branch and upload it"
-    local('git archive --format=tar master | gzip > %s.tar.gz'% (env.release))
+    "Create an archive from the current Git main branch and upload it"
+    local('git archive --format=tar main | gzip > %s.tar.gz'% (env.release))
     sudo('mkdir -p %s'% (path))
     put('%s.tar.gz'%(env.release), '/tmp', mode=0755)
     sudo('mv /tmp/%s.tar.gz %s/packages/'%(env.release, env.code_root))

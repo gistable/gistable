@@ -29,14 +29,14 @@ image_width, image_height = images[0].size
 
 print "all images assumed to be %d by %d." % (image_width, image_height)
 
-master_width = (image_width * len(images) ) 
+main_width = (image_width * len(images) ) 
 #seperate each image with lots of whitespace
-master_height = image_height
-print "the master image will by %d by %d" % (master_width, master_height)
+main_height = image_height
+print "the main image will by %d by %d" % (main_width, main_height)
 print "creating image...",
-master = Image.new(
+main = Image.new(
     mode='RGBA',
-    size=(master_width, master_height),
+    size=(main_width, main_height),
     color=(0,0,0,0))  # fully transparent
 
 print "created."
@@ -44,11 +44,11 @@ print "created."
 for count, image in enumerate(images):
     location = image_width*count
     print "adding %s at %d..." % (iconMap[count][1], location),
-    master.paste(image,(location,0))
+    main.paste(image,(location,0))
     print "added."
 print "done adding icons."
 
-print "saving master.jpg...",
-master.save('master.jpg', transparency=0 )
+print "saving main.jpg...",
+main.save('main.jpg', transparency=0 )
 print "saved!"
 

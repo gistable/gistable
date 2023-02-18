@@ -8,7 +8,7 @@ Author: Emil Stenqvist <emsten@gmail.com>
 Usage:
 
 1. Put ec2_tags.py in roots/_grains/
-2. Add the following to your salt-minion and/or salt-master config:
+2. Add the following to your salt-minion and/or salt-main config:
 
   ec2_tags:
     aws:

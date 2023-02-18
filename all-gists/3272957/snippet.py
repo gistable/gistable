@@ -22,7 +22,7 @@ def sqlite_db(path):
     conn.row_factory = sqlite3.Row
     # test if this is really sqlite file
     cur = conn.cursor()
-    cur.execute('SELECT 1 from sqlite_master where type = "table"')
+    cur.execute('SELECT 1 from sqlite_main where type = "table"')
     try:
         data = cur.fetchone()
     except sqlite3.DatabaseError:
@@ -42,11 +42,11 @@ args = parser.parse_args()
 src_cur = args.src_db.cursor()
 dst_cur = args.dst_db.cursor()
 
-src_cur.execute('SELECT * from sqlite_master')
-src_master = src_cur.fetchall()
+src_cur.execute('SELECT * from sqlite_main')
+src_main = src_cur.fetchall()
 
-src_tables = filter(lambda r: r['type'] == 'table', src_master)
-src_indices = filter(lambda r: r['type'] == 'index' and r['sql'] is not None, src_master)
+src_tables = filter(lambda r: r['type'] == 'table', src_main)
+src_indices = filter(lambda r: r['type'] == 'index' and r['sql'] is not None, src_main)
 
 logger.info('Found tables: %d', len(src_tables))
 for table in src_tables:

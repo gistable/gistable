@@ -4447,9 +4447,9 @@ session.quit()
 from Tkinter import *
 
 class App:
-    def __init__(self, master):
+    def __init__(self, main):
 
-        frame = Frame(master)
+        frame = Frame(main)
         frame.pack()
 
         self.button = Button(frame, text="QUIT", fg="red", command=frame.quit)
@@ -5559,7 +5559,7 @@ raw_input('Presiona una tecla para terminar')
 #148. Firebird
 '''
 import kinterbasdb
-con = kinterbasdb.connect(dsn='C:\Firebird\Firebird_2_1\examples\empbuild\EMPLOYEE.FDB', user='sysdba', password='masterkey')
+con = kinterbasdb.connect(dsn='C:\Firebird\Firebird_2_1\examples\empbuild\EMPLOYEE.FDB', user='sysdba', password='mainkey')
 # Create a Cursor object that operates in the context of Connection con:
 cur = con.cursor()
 print "\t[Firebird]"
@@ -6436,7 +6436,7 @@ def f1():
 def f2():
     print "Haciendo otras cosas"
 
-@logger('Master')
+@logger('Main')
 def f3():
     print "Haciendo más cosas"
     for f in range(1,5):

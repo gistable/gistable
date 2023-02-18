@@ -122,7 +122,7 @@ class Communicator(object):
         return self._throw(url, params)
 
     def get_all_ships(self):
-        url = prefix + "/kcsapi/api_get_master/ship"
+        url = prefix + "/kcsapi/api_get_main/ship"
         return self._throw(url)
 
     def charge(self, ship_ids, kind):
@@ -166,7 +166,7 @@ class Communicator(object):
         return res
 
     def start_battle(self, formation_id, deck_id, mapinfo_no, maparea_id):
-        url_map = prefix + "/kcsapi/api_get_master/mapcell"
+        url_map = prefix + "/kcsapi/api_get_main/mapcell"
         url_start = prefix + "/kcsapi/api_req_map/start"
 
         start_params = {
@@ -260,7 +260,7 @@ class Communicator(object):
         return self._throw(url)
 
     def get_all_slotitems(self):
-        url = prefix + "/kcsapi/api_get_master/slotitem"
+        url = prefix + "/kcsapi/api_get_main/slotitem"
         return self._throw(url)
 
 class BaseKankoreObject(object):
@@ -270,12 +270,12 @@ class BaseKankoreObject(object):
     def __repr__(self):
         return self.name.encode("utf-8")
 
-class MasterSlotItem(BaseKankoreObject):
+class MainSlotItem(BaseKankoreObject):
     @property
     def powerup_status(self):
         return [self.houg, self.raig, self.tyku, self.souk]
 
-class SlotItem(MasterSlotItem):
+class SlotItem(MainSlotItem):
     pass
 
 class Map(object):
@@ -309,7 +309,7 @@ class NDock(object):
     def opened(self):
         return self.state != -1
 
-class MasterShip(BaseKankoreObject):
+class MainShip(BaseKankoreObject):
     pass
 
 class Ship(object):
@@ -386,17 +386,17 @@ class GameController(object):
         self.decks = []
         self.ndocks = []
         self.in_ndock_ships = []
-        self.master_slot_items = map(MasterSlotItem, self.comm.get_all_slotitems()["api_data"])
-        self.master_ships = map(MasterShip, self.comm.get_all_ships()["api_data"])
+        self.main_slot_items = map(MainSlotItem, self.comm.get_all_slotitems()["api_data"])
+        self.main_ships = map(MainShip, self.comm.get_all_ships()["api_data"])
         self.update_slot_item()
 
     def set_ship_params(self, ship):
-        master_ship = filter(lambda ms:ms.id == ship.ship_id, self.master_ships)[0]
-        ship.name = master_ship.name
-        ship.bull_max = master_ship.bull_max
-        ship.fuel_max = master_ship.fuel_max
-        ship.powup = master_ship.powup
-        ship.type = master_ship.stype
+        main_ship = filter(lambda ms:ms.id == ship.ship_id, self.main_ships)[0]
+        ship.name = main_ship.name
+        ship.bull_max = main_ship.bull_max
+        ship.fuel_max = main_ship.fuel_max
+        ship.powup = main_ship.powup
+        ship.type = main_ship.stype
         return ship
 
     def update_ships(self):

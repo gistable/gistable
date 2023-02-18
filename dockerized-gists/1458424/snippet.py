@@ -27,7 +27,7 @@ environments = {
 		}
 	},
 	'production': {
-		'branch': 'master',
+		'branch': 'main',
 		'site_dir': '/var/sites/grahamweldon.com/'
 	},
 	'stage': {

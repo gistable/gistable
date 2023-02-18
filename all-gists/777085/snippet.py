@@ -16,19 +16,19 @@ def note(format, *args):
 
 class ChatHandler(object):
     
-    def __init__(self, master_location):
-        self._master_location = master_location
+    def __init__(self, main_location):
+        self._main_location = main_location
         self.green_event = event.Event()
         self.messages = []
-        gevent.spawn_later(1, self.communicate_with_master)
+        gevent.spawn_later(1, self.communicate_with_main)
 
     def add_message(self, author, message):
         note('%s: %s' % (author, message))
-        self.master_socket.send('From %s %s > %s \r\n' % (author, current_process().name, message))
+        self.main_socket.send('From %s %s > %s \r\n' % (author, current_process().name, message))
 
-    def communicate_with_master(self):
-        self.master_socket = socket.create_connection(self._master_location)
-        f = self.master_socket.makefile()
+    def communicate_with_main(self):
+        self.main_socket = socket.create_connection(self._main_location)
+        f = self.main_socket.makefile()
         while True:
             m = f.readline()
             if not m:
@@ -81,7 +81,7 @@ class ChatHandler(object):
         gevent.spawn(self.handle, fileobj, address).join()
 
 
-class master(object):
+class main(object):
     
     def __init__(self):
         self.children = []
@@ -106,16 +106,16 @@ class master(object):
             self.write_to_children(address, line)
     
 
-master_listen = ('127.0.0.1', 4002)
-master = server.StreamServer(master_listen, master())
+main_listen = ('127.0.0.1', 4002)
+main = server.StreamServer(main_listen, main())
 
-Chat = ChatHandler(master_listen)
+Chat = ChatHandler(main_listen)
 
 s = server.StreamServer(('127.0.0.1', 4001), Chat)
 s.pre_start()
 
-def serve_forever(server, master_listen):
-    Chat = ChatHandler(master_listen)
+def serve_forever(server, main_listen):
+    Chat = ChatHandler(main_listen)
     server.set_handle(Chat)
     try:
         gevent.spawn_later(1, server.start_accepting)
@@ -129,12 +129,12 @@ def serve_forever(server, master_listen):
 number_of_processes = cpu_count() - 1
 number_of_processes = 2
 print 'Starting %s processes' % number_of_processes
-processes = [Process(target=serve_forever, args=(s, master_listen)) for i in range(number_of_processes)]
+processes = [Process(target=serve_forever, args=(s, main_listen)) for i in range(number_of_processes)]
 
 
 for process in processes:
     process.start()
 s.start()
-master.start()
+main.start()
 
-gevent.joinall([master._stopped_event, s._stopped_event])
+gevent.joinall([main._stopped_event, s._stopped_event])

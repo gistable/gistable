@@ -25,7 +25,7 @@ size = comm.Get_size()
 slice_size = 1000000
 total_slices = 50
 
-# This is the master node.
+# This is the main node.
 if rank == 0:
     pi = 0
     slice = 0
@@ -59,7 +59,7 @@ if rank == 0:
 
     print "Pi is ", 4.0 * pi
 
-# These are the slave nodes, where rank > 0. They do the real work
+# These are the subordinate nodes, where rank > 0. They do the real work
 else:
     while True:
         start = comm.recv(source=0, tag=1)

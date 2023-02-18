@@ -4,7 +4,7 @@ import struct
 class OptionError(Exception):
     """Configuration errors"""
 
-class MasterServerQuery:
+class MainServerQuery:
     def __init__(self, region='ALL_OVER', mserver=None, **kwargs):
         self.valid_regions = {'US_EAST': '\x00', 'US_WEST': '\x01', 'SOUTH_AMERICA': '\x02',
                               'EUROPE': '\x03', 'ASIA': '\x04', 'AUS': '\x05', 'MIDDLE_EAST': '\x06',
@@ -13,8 +13,8 @@ class MasterServerQuery:
         self.valid_args = ['type', 'secure', 'gamedir', 'map', 'linux', 'empty',
                            'full', 'proxy', 'napp', 'noplayers', 'white']
 
-        self.valid_mserver = {'hl1': (socket.gethostbyname('hl1master.steampowered.com'), 27010),
-                              'hl2': (socket.gethostbyname('hl2master.steampowered.com'), 27011)}
+        self.valid_mserver = {'hl1': (socket.gethostbyname('hl1main.steampowered.com'), 27010),
+                              'hl2': (socket.gethostbyname('hl2main.steampowered.com'), 27011)}
 
         self._MSG_TYPE = '\x31'
         self._ZERO_IP = '\x30\x2E\x30\x2E\x30\x2E\x30\x3A\x30\x00'
@@ -28,7 +28,7 @@ class MasterServerQuery:
             self.region = self.valid_regions[region]
 
         if mserver not in self.valid_mserver:
-            raise OptionError('Invalid master server: %s' % mserver)
+            raise OptionError('Invalid main server: %s' % mserver)
         else:
             self.mserver = self.valid_mserver[mserver]
 
@@ -78,7 +78,7 @@ class MasterServerQuery:
             self._sock = None
 
 if __name__ == '__main__':
-    a = MasterServerQuery('US_WEST', mserver='hl2', gamedir='tf', napp='500')
+    a = MainServerQuery('US_WEST', mserver='hl2', gamedir='tf', napp='500')
     a.get_server_list()
     print len(a.servers)
     print a.servers[:5]

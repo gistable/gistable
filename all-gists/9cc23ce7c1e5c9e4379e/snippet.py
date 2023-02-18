@@ -134,7 +134,7 @@ def save_model():
 	file.write(contents)
 	file.close()
 
-def save_master():
+def save_main():
 	global animation_frame	
 	global current_tile
 	global padding
@@ -143,7 +143,7 @@ def save_master():
 		if (animation_frame == 10 or animation_frame == 100 or animation_frame == 1000) :
 			find_compass_zeros()
 		padding = compass_padding
-	with open(master_file, "a") as myfile:
+	with open(main_file, "a") as myfile:
 		myfile.write('{"predicate":{"' + frame_type + '":' + str(frame) + '},"model":"item/' + filefolder + '_' + padding + str(animation_frame) +'"},\n\t')
 	padding = padding_images
 	current_tile += 1
@@ -153,12 +153,12 @@ def save_master():
 		find_compass_zeros()	
 
 
-master_file = file_path_base_models + animation + '.json'
+main_file = file_path_base_models + animation + '.json'
 padding_images = padding
 if (animation == 'compass'):
 	padding = compass_padding
 
-file = open(master_file, "a")
+file = open(main_file, "a")
 contents = '{"parent": "item/generated","textures": {"layer0": "items/' + filefolder + '_' + padding + str(animation_frame) + '"' '},"overrides": [ \n\t{"predicate":{' + '"'
 save_image()
 save_model()
@@ -182,12 +182,12 @@ while (current_tile < tile_number):
 	save_image()
 	save_model()
 	frame = frame + increment
-	save_master()
+	save_main()
 	if (animation == 'compass' and animation_frame == tile_number / 2):
 		break
 
 frame = frame + increment
-with open(master_file, "a") as myfile:
+with open(main_file, "a") as myfile:
 	myfile.write('{"predicate":{"' + frame_type + '":' + str(frame)  + '},"model":"item/' + animation + '"}]}')
 
 mcmeta = file_path_base + 'pack.mcmeta'

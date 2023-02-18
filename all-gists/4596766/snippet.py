@@ -40,11 +40,11 @@ if repo.is_dirty() and not debug:
 	
 	sys.exit(os.EX_NOINPUT)
 	
-#switch to master
+#switch to main
 
-if repo.active_branch != 'master':
+if repo.active_branch != 'main':
 
-	os.system("git checkout master")
+	os.system("git checkout main")
 	
 #pull the remote
 

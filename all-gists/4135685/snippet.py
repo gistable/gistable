@@ -460,7 +460,7 @@ class NNTP:
 
         return self.artcmd('ARTICLE ' + id)
 
-    def slave(self):
+    def subordinate(self):
         """Process a SLAVE command.  Returns:
         - resp: server response if successful"""
 

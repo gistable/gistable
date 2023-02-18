@@ -30,7 +30,7 @@ class Analyser:
     api_base_url = 'https://api.github.com'
     org_base_url = '{}/orgs/{}'.format(api_base_url, org_name)
     respositories_url = '{}/repos'.format(org_base_url)
-    repository_tree_url = '{}/repos/{}/{{}}/git/trees/master?recursive=1'.format(api_base_url, org_name)
+    repository_tree_url = '{}/repos/{}/{{}}/git/trees/main?recursive=1'.format(api_base_url, org_name)
     blob_url = '{}/repos/{}/{{}}/git/blobs/{{}}'.format(api_base_url, org_name)
 
     requirements_re = re.compile(r'(requirements.*?txt$|\bsetup.py$)', re.IGNORECASE)

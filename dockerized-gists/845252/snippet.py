@@ -23,7 +23,7 @@ print "Connecting to Mongo at %s:%i" % (host, port)
 time.sleep(3)
 
 try:
-    db = pymongo.Connection(host, port, slave_okay=True)[sys.argv[1]]
+    db = pymongo.Connection(host, port, subordinate_okay=True)[sys.argv[1]]
 except:
     print >> sys.stderr, "Connection failed to %s:%i.  Please check the host and try again."
     sys.exit(-1)

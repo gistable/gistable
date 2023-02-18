@@ -39,4 +39,4 @@ if __name__ == '__main__':
 		solve(scorefun)
 		print("It took", attempts, "attempts.")
 	else:
-		print(secret, "is not a well-formed mastermind code.")
+		print(secret, "is not a well-formed mainmind code.")

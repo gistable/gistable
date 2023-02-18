@@ -23,7 +23,7 @@ class AnalyseChrome:
     def show_table(self,name="%"):
         '''show the table in db of History'''
 
-        sql="SELECT * FROM sqlite_master WHERE type='table' and name like '%s';"%(name,)
+        sql="SELECT * FROM sqlite_main WHERE type='table' and name like '%s';"%(name,)
         return self.get_sql_res(sql)
         
     def clear(self,):

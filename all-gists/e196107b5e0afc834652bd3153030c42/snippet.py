@@ -53,7 +53,7 @@ flags.DEFINE_boolean("profile", False, "whether to collect CPU profile")
 
 # internal flags, set by client
 flags.DEFINE_string("task_index", "", "# of current task")
-flags.DEFINE_string("port0", "12222", "port of worker1, used as master")
+flags.DEFINE_string("port0", "12222", "port of worker1, used as main")
 flags.DEFINE_string("port1", "12223", "port of worker2")
 FLAGS = flags.FLAGS
 
@@ -149,7 +149,7 @@ def run_benchmark_distributed():
   if FLAGS.verbose:
     print("Killing workers.")
   sess.run(queues[1].enqueue(1))
-  sess.run(queues[0].enqueue(1))  # bring down master last
+  sess.run(queues[0].enqueue(1))  # bring down main last
   
   return rate
 
@@ -171,6 +171,6 @@ if __name__=='__main__':
     queue = create_done_queue(FLAGS.task_index)
     sess = tf.Session(server.target, config=session_config())
     sess.run(queue.dequeue())
-    time.sleep(1) # give chance for master session.run call to return
+    time.sleep(1) # give chance for main session.run call to return
     if FLAGS.verbose:
       print("Worker %s quitting." %(FLAGS.task_index))

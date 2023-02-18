@@ -49,12 +49,12 @@ def get_serial():
   ]
   objc.loadBundleFunctions(IOKit_bundle, globals(), functions)
 
-  kIOMasterPortDefault = 0
+  kIOMainPortDefault = 0
   kIOPlatformSerialNumberKey = 'IOPlatformSerialNumber'
   kCFAllocatorDefault = None
 
   platformExpert = IOServiceGetMatchingService(
-    kIOMasterPortDefault,
+    kIOMainPortDefault,
     IOServiceMatching("IOPlatformExpertDevice")
   )
   serial = IORegistryEntryCreateCFProperty(

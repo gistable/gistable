@@ -45,11 +45,11 @@ def stable():
     """
     env.branch = 'stable'
 
-def master():
+def main():
     """
     Work on development branch.
     """
-    env.branch = 'master'
+    env.branch = 'main'
 
 def branch(branch_name):
     """
@@ -67,7 +67,7 @@ def setup():
     Does NOT perform the functions of deploy().
     """
     require('settings', provided_by=[production, staging])
-    require('branch', provided_by=[stable, master, branch])
+    require('branch', provided_by=[stable, main, branch])
     
     setup_directories()
     setup_virtualenv()
@@ -140,7 +140,7 @@ def deploy():
     Does not perform the functions of load_new_data().
     """
     require('settings', provided_by=[production, staging])
-    require('branch', provided_by=[stable, master, branch])
+    require('branch', provided_by=[stable, main, branch])
     
     with settings(warn_only=True):
         maintenance_up()
@@ -202,7 +202,7 @@ def rollback(commit_id):
     commit hash.
     """
     require('settings', provided_by=[production, staging])
-    require('branch', provided_by=[stable, master, branch])
+    require('branch', provided_by=[stable, main, branch])
     
     maintenance_up()
     checkout_latest()

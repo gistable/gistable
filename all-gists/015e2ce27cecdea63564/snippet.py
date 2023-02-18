@@ -212,7 +212,7 @@ db.unicorns.update({}, {'$set': {'vaccinated': True}}, multi=True);
 for unicorn in db.unicorns.find({'vaccinated': True}).limit(5):
     print unicorn
 
-# ******** Chapter 3 - Mastering Find:
+# ******** Chapter 3 - Maining Find:
 # *
 # * https://github.com/karlseguin/the-little-mongodb-book/blob/master/en/mongodb.markdown#chapter-3---mastering-find
 #

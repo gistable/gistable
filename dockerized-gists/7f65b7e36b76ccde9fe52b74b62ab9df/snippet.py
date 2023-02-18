@@ -6,10 +6,10 @@ import subprocess as sp
 
 FFMPEG_BIN = 'ffmpeg.exe'
 
-master_json_url = sys.argv[1]
-base_url = master_json_url[:master_json_url.rfind('/', 0, -26) - 5]
+main_json_url = sys.argv[1]
+base_url = main_json_url[:main_json_url.rfind('/', 0, -26) - 5]
 
-resp = requests.get(master_json_url)
+resp = requests.get(main_json_url)
 content = resp.json()
 
 heights = [(i, d['height']) for (i, d) in enumerate(content['video'])]

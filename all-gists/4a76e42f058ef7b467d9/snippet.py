@@ -207,7 +207,7 @@ pctl.PlotLayer()
 
 popt.SetTextMode(PLOTTEXTMODE_STROKE)
 pctl.SetLayer(F_Mask)
-pctl.OpenPlotfile("Assembly", PLOT_FORMAT_PDF, "Master Assembly")
+pctl.OpenPlotfile("Assembly", PLOT_FORMAT_PDF, "Main Assembly")
 pctl.SetColorMode(True)
 
 # We want *everything*

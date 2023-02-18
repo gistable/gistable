@@ -74,7 +74,7 @@ def process_2x_database(data, databaseName):
 
     index = 12
     endReached = False
-    masterSeed = ''
+    mainSeed = ''
     transformSeed = ''
     transformRounds = 0
     initializationVectors = ''
@@ -92,7 +92,7 @@ def process_2x_database(data, databaseName):
             endReached = True
 
         if btFieldID == 4:
-            masterSeed = hexlify(data[index:index+uSize])
+            mainSeed = hexlify(data[index:index+uSize])
 
         if btFieldID == 5:
             transformSeed = hexlify(data[index:index+uSize])
@@ -111,7 +111,7 @@ def process_2x_database(data, databaseName):
     dataStartOffset = index
     firstEncryptedBytes = hexlify(data[index:index+32])
 
-    return "%s:$keepass$*2*%s*%s*%s*%s*%s*%s*%s" %(databaseName, transformRounds, dataStartOffset, masterSeed, transformSeed, initializationVectors, expectedStartBytes, firstEncryptedBytes)
+    return "%s:$keepass$*2*%s*%s*%s*%s*%s*%s*%s" %(databaseName, transformRounds, dataStartOffset, mainSeed, transformSeed, initializationVectors, expectedStartBytes, firstEncryptedBytes)
 
 
 def process_database(filename):

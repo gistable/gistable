@@ -18,7 +18,7 @@ import pexpect #3.0b1 for Python>3.2 from https://github.com/pexpect/pexpect/rel
 class AutocompleteService():
   #from https://github.com/fsharp/fsharpbinding
   #I am not sure where this should 'go' maybe in the lib folder as above?
-	prog = "<WHERE YOU PUT IT>/fsharp-lib/fsharpbinding-master/FSharp.AutoComplete/bin/Debug/fsautocomplete.exe"
+	prog = "<WHERE YOU PUT IT>/fsharp-lib/fsharpbinding-main/FSharp.AutoComplete/bin/Debug/fsautocomplete.exe"
 	service = pexpect.spawn("mono " + prog)#create the process when you create the object
 	service.setecho(False)#so what we send is not printed
 

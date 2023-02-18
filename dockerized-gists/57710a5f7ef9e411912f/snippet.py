@@ -12,7 +12,7 @@ def commit(message):
 def localpush(message):
     with settings(warn_only=True):
         commit(message)
-    local('git push -u origin master')
+    local('git push -u origin main')
 
 def deploy(proj_path):
     with open(USER_DETAILS) as USERDETAILS:

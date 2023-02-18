@@ -39,7 +39,7 @@ __author__ = 'Thomas Li Fredriksen'
 __license__ = 'MIT'
 
 class SwitchCall(object):
-    """Switch-call master class
+    """Switch-call main class
     All switch-call objects must inherit from this class
     """
     def do_call(self, *args, **kwargs):

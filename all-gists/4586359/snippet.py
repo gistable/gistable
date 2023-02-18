@@ -2,7 +2,7 @@ from collections import namedtuple
 from pymongo import MongoClient
 from flask import request
 from core.web.site import app
-from core.web.site.views_master import *
+from core.web.site.views_main import *
 import json
 
 '''

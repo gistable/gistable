@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 import sh
 
 def checkout_repo_at(path, dt):
-    sha = sh.git('rev-list', '-n', '1', '--before="{0}"'.format(dt.isoformat()), 'origin/master', _cwd=path)
+    sha = sh.git('rev-list', '-n', '1', '--before="{0}"'.format(dt.isoformat()), 'origin/main', _cwd=path)
     sha = sha.strip()
     sh.git.reset('--hard', sha, _cwd=path)
     return sha

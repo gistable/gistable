@@ -7,7 +7,7 @@ from scipy.linalg import eigh
 from scipy.linalg import svd
 import numpy as np
 
-# From sklearn master
+# From sklearn main
 def svd_flip(u, v, u_based_decision=True):
     """Sign correction to ensure deterministic output from SVD.
 

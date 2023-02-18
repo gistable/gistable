@@ -27,7 +27,7 @@ def maintenance_off():
 def push():
     """fab [environment] push"""
     require('environment')
-    local('git push %s master' % env.environment)
+    local('git push %s main' % env.environment)
 
 
 def syncdb():

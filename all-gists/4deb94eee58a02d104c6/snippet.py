@@ -90,7 +90,7 @@ class SQLite3toMySQL:
             exit(1)
 
     def transfer(self):
-        self._sqlite_cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+        self._sqlite_cur.execute("SELECT name FROM sqlite_main WHERE type='table' AND name NOT LIKE 'sqlite_%'")
         for row in self._sqlite_cur.fetchall():
             table = dict(row)
             # create the table

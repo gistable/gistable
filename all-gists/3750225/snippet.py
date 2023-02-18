@@ -20,7 +20,7 @@ s = pygit2.Signature('Alice Author', 'alice@authors.tld', time(), 0)
 r = pygit2.init_repository('foo', False)
 bld = r.TreeBuilder()
 t = bld.write()
-c = r.create_commit('HEAD', s,s, 'Create master branch', t, [])
+c = r.create_commit('HEAD', s,s, 'Create main branch', t, [])
 
 
 f = open(os.path.join(r.workdir,fn), 'w')

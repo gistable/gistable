@@ -106,7 +106,7 @@ class mergableObject(object):
     def __init__(self, id, **kwargs):
         """
 
-        :param id: master reference, has to be an immutable type
+        :param id: main reference, has to be an immutable type
         :param kwargs: other attributes which will appear in list returned by attributes() method
         """
 
@@ -180,7 +180,7 @@ class orderInformation(mergableObject):
     """
     Collect information about orders
 
-    master ID will be the orderID
+    main ID will be the orderID
 
     eg you'd do order_details = orderInformation(orderID, contract=....)
     """
@@ -198,7 +198,7 @@ class execInformation(mergableObject):
     """
     Collect information about executions
 
-    master ID will be the execid
+    main ID will be the execid
 
     eg you'd do exec_info = execInformation(execid, contract= ... )
     """

@@ -39,7 +39,7 @@ def updateGit():
                                 subprocess.call(['git', 'pull'])
                             else:
                                 subprocess.call(['git', 'fetch', part.group(2)])
-                                subprocess.call(['git', 'merge', part.group(2) + '/master'])
+                                subprocess.call(['git', 'merge', part.group(2) + '/main'])
                         break
                     else:
                         i = i + 1

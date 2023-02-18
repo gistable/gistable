@@ -6,7 +6,7 @@ currently running work is done). This script works either for forked servers or
 single-process servers.
 
 The graceful-stop process can be triggered by sending `SIGHUP` to server (in a
-forked environment, sending SIGHUP to master server, propagates to all
+forked environment, sending SIGHUP to main server, propagates to all
 children). Server immediately releases the listening socket (so another server
 can be launched on that port) and wait for running requests to finish. The
 server is also stops if stop-timeout is reached (defaults to 100 seconds, can
@@ -117,11 +117,11 @@ class GracefulServerStopper(object):
         self.work_done_detector = work_done_detector
         self.max_wait_seconds = max_wait_seconds
         self._stopped = False
-        self.setup_master_handlers()
+        self.setup_main_handlers()
 
-    def setup_master_handlers(self):
+    def setup_main_handlers(self):
         """
-        Setup signal handler for the master process (process that calls `process.fork_processes`)
+        Setup signal handler for the main process (process that calls `process.fork_processes`)
         Installed handler will be overwritten by `setup_worker_handlers` on child processes
         NOTE: This should be called before `process.fork_processes` call
         """

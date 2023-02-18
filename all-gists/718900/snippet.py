@@ -15,7 +15,7 @@ We assume that:
 
 Some bulk notes:
     * All projects are stored in the same directory (REMOTE_BASE).
-    * The gunicorn masterpid is stored in REMOTE_BASE/name/master.pid
+    * The gunicorn mainpid is stored in REMOTE_BASE/name/main.pid
 """
 
 
@@ -188,18 +188,18 @@ def restart():
     """Restart the application (gunicorn only for now)."""
 
     with cd(_remote_path()):
-        if not exists(_remote_path('run', 'master.pid')):
+        if not exists(_remote_path('run', 'main.pid')):
             start()
         else:
-            run('kill -HUP `cat run/master.pid`')
+            run('kill -HUP `cat run/main.pid`')
 
 
 def stop():
     """Stop the running Gunicorn application."""
 
     with cd(_remote_path()):
-        run('kill -9 `cat run/master.pid`')
-        run('rm -f run/master.pid')
+        run('kill -9 `cat run/main.pid`')
+        run('rm -f run/main.pid')
 
 
 def start():
@@ -211,7 +211,7 @@ def start():
         command += '-c %s' % CONFIG['GUNICORN_CONFIG']
     else:
         command += '-D -p %s -b unix:%s --log-file %s --log-level warning' %\
-                (_remote_path('run', 'master.pid'),
+                (_remote_path('run', 'main.pid'),
                  _remote_path('run', 'app.socket'),
                  _remote_path('run', 'gunicorn_log'))
 

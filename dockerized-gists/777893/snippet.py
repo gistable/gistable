@@ -57,18 +57,18 @@ def main(urls):
     ctx = zmq.Context(1)
     io_loop = ioloop.IOLoop.instance()
     
-    master_push = ctx.socket(zmq.PUSH)
-    master_push.bind('inproc://master/download')
+    main_push = ctx.socket(zmq.PUSH)
+    main_push.bind('inproc://main/download')
 
     worker_pull = ctx.socket(zmq.PULL)
-    worker_pull.connect('inproc://master/download')
+    worker_pull.connect('inproc://main/download')
 
     worker_pub = ctx.socket(zmq.PUB)
     worker_pub.bind('inproc://worker/fetched')
 
-    master_sub = ctx.socket(zmq.SUB)
-    master_sub.connect('inproc://worker/fetched')
-    master_sub.setsockopt(zmq.SUBSCRIBE, "")
+    main_sub = ctx.socket(zmq.SUB)
+    main_sub.connect('inproc://worker/fetched')
+    main_sub.setsockopt(zmq.SUBSCRIBE, "")
 
     def print_and_send_2_more(msg):
         if len(msg) == 2:
@@ -77,20 +77,20 @@ def main(urls):
             print "should exit"
             ioloop.DelayedCallback(io_loop.stop, 5000.0, io_loop).start()
 
-    master_stream = ZMQStream(master_sub, io_loop)
-    master_stream.on_recv(print_and_send_2_more)
+    main_stream = ZMQStream(main_sub, io_loop)
+    main_stream.on_recv(print_and_send_2_more)
 
     downloader = Downloader(worker_pull, worker_pub, io_loop)
 
     for url in urls:
-        master_push.send_unicode(url)
+        main_push.send_unicode(url)
 
     print "starting"
     io_loop.start()
     print "finished"
 
-    master_push.close()
-    master_sub.close()
+    main_push.close()
+    main_sub.close()
     worker_pull.close()
     worker_pub.close
     ctx.term()

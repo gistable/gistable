@@ -47,12 +47,12 @@ def _parse_args():
 
 def _main():
     context = _parse_args()
-    master_hosts = _parse_known_hosts(context.decoder)
+    main_hosts = _parse_known_hosts(context.decoder)
     exit_code = 0
     for l in fileinput.input(context.file):
         h, key_format, key_in_question = l.split()
         try:
-            matches = master_hosts[key_in_question]
+            matches = main_hosts[key_in_question]
             if context.generate:
                 print("%s %s %s" % (','.join(matches), key_format,
                     key_in_question))

@@ -19,7 +19,7 @@ def production():
     env.hosts = ['xx.yyy.zzz.qqq']
     env.user = 'xxxxxxx'
     global branch
-    branch = 'master'
+    branch = 'main'
     global environment
     environment = 'production'
 

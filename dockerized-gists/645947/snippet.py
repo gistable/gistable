@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Query the Steam master servers.
+# Query the Steam main servers.
 #
 # See: http://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol
 #
@@ -10,9 +10,9 @@
 
 import socket
 
-# Master server:
-GOLD_SRC = ( "hl1master.steampowered.com", 27010 )
-SOURCE = ( "hl2master.steampowered.com", 27011 )
+# Main server:
+GOLD_SRC = ( "hl1main.steampowered.com", 27010 )
+SOURCE = ( "hl2main.steampowered.com", 27011 )
 
 # Regions:
 US_EAST_COAST = 0x00
@@ -40,9 +40,9 @@ def _parse( data ):
         yield ip, port
         data = data[6:]
 
-def query( master=SOURCE, region=ALL, **filters ):
+def query( main=SOURCE, region=ALL, **filters ):
     sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
-    sock.connect( master )
+    sock.connect( main )
     first = last = ( "0.0.0.0", 0 )
     while True:
         sock.sendall( _buildpacket( last, region, filters ) )

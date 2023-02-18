@@ -5,9 +5,9 @@ from select import select
 import sys
 import tty
 
-master, slave = pty.openpty()
-p = Popen(['python'], stdin=slave, stdout=PIPE, stderr=PIPE)
-pin = os.fdopen(master, 'w')
+main, subordinate = pty.openpty()
+p = Popen(['python'], stdin=subordinate, stdout=PIPE, stderr=PIPE)
+pin = os.fdopen(main, 'w')
 tty.setcbreak(sys.stdin)
 
 msg = ''

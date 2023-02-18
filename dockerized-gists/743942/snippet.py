@@ -39,13 +39,13 @@ class StreamingReplicationCheck(nagiosplugin.Check):
     def __init__(self, optparser, log):
         optparser.description = "Check PG9 streaming replication lag."
         optparser.version = __version__
-        optparser.add_option('-M', '--master',
+        optparser.add_option('-M', '--main',
             metavar='DSN',
-            help='DSN for the master connection (e.g. "host=foo user=bar")'
+            help='DSN for the main connection (e.g. "host=foo user=bar")'
         )
-        optparser.add_option('-S', '--slave',
+        optparser.add_option('-S', '--subordinate',
             metavar='DSN',
-            help='DSN for the slave connection (e.g. "host=foo user=bar")'
+            help='DSN for the subordinate connection (e.g. "host=foo user=bar")'
         )
         optparser.add_option('-w', '--warning',
             default='128',
@@ -59,25 +59,25 @@ class StreamingReplicationCheck(nagiosplugin.Check):
         )
         
     def process_args(self, opts, args):
-        self.master_conn = psycopg2.connect(opts.master)
-        self.slave_conn = psycopg2.connect(opts.slave)
+        self.main_conn = psycopg2.connect(opts.main)
+        self.subordinate_conn = psycopg2.connect(opts.subordinate)
         self.warning = opts.warning
         self.critical = opts.critical
     
     def obtain_data(self):
-        mc = self.master_conn.cursor()
+        mc = self.main_conn.cursor()
         mc.execute('SELECT pg_current_xlog_location()')
-        master_loc = xlog_to_bytes(mc.fetchone()[0])
-        self.master_conn.commit()
-        self.master_conn.close()
+        main_loc = xlog_to_bytes(mc.fetchone()[0])
+        self.main_conn.commit()
+        self.main_conn.close()
         
-        sc = self.slave_conn.cursor()
+        sc = self.subordinate_conn.cursor()
         sc.execute('SELECT pg_last_xlog_replay_location()')
-        slave_loc = xlog_to_bytes(sc.fetchone()[0])
-        self.slave_conn.commit()
-        self.slave_conn.close()
+        subordinate_loc = xlog_to_bytes(sc.fetchone()[0])
+        self.subordinate_conn.commit()
+        self.subordinate_conn.close()
         
-        self.lag = (master_loc - slave_loc) / 1024
+        self.lag = (main_loc - subordinate_loc) / 1024
         self.measures = [
             nagiosplugin.Measure('lag', self.lag, 'kB', self.warning, self.critical)
         ]

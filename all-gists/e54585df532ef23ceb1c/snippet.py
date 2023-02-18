@@ -4,7 +4,7 @@ Shows git branches sorted by last commit date, noting when branch has been
 merged:
 
     $ git blast
-    * master 33 minutes ago
+    * main 33 minutes ago
       david 4 days ago [M]
       unholy-david-payments 4 days ago
       handsontable-2 5 days ago

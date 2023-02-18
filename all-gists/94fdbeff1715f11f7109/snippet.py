@@ -18,7 +18,7 @@ Server for accepting incoming Jenkins connections via SSH on Windows.
 Only supports running commands - won't give you a usable terminal.
 
 Assumes that C:\Users\me\.ssh contains an RSA keypair for use as the host SSH keys
-and a public key associated with a private key on the Jenkins master (which will connect as user 'jenkins').
+and a public key associated with a private key on the Jenkins main (which will connect as user 'jenkins').
 
 Runs commands using Git Bash sh.exe, which makes it easier for Jenkins to connect and execute commands.
 Assumes this is available in Program Files\Git\bin.
@@ -113,7 +113,7 @@ with open('C:\\Users\\me\\.ssh\\host_rsa.pub') as public_key_file:
     public_key = public_key_file.read()
 with open('C:\\Users\\me\\.ssh\\host_rsa') as private_key_file:
     private_key = private_key_file.read()
-# Read public key file associated with a private key on the Jenkins master
+# Read public key file associated with a private key on the Jenkins main
 with open('C:\\Users\me\\.ssh\\jenkins_rsa.pub') as jenkins_public_key_file:
     jenkins_public_key = jenkins_public_key_file.read()
 

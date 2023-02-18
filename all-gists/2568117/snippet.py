@@ -28,21 +28,21 @@ class Worker:
     def stop(self):
         self.running = False
 
-class Master:
+class Main:
     def __init__(self):
         self.pid = os.getpid()
         self.context = zmq.Context()
         self.rep = self.context.socket(zmq.REP)
         self.pub = self.context.socket(zmq.PUB)
-        self.rep.bind("ipc://master-" + str(self.pid))
+        self.rep.bind("ipc://main-" + str(self.pid))
         self.pub.bind("ipc://workers-" + str(self.pid))
         self.workers = []
 
     def run(self):
-        print 'A new master ', os.getpid()
+        print 'A new main ', os.getpid()
         while True:
             lst = self.rep.recv_multipart()
-            print "Master: " + ", ".join(lst)
+            print "Main: " + ", ".join(lst)
             if lst[0] == 'fork':
                 self.fork()
                 self.rep.send("ok: " + str(self.workers))
@@ -65,5 +65,5 @@ class Master:
         else:
             self.workers.append(newpid)
 
-master = Master()
-master.run()
+main = Main()
+main.run()

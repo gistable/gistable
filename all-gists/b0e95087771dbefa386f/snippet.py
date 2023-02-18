@@ -62,10 +62,10 @@ git pull --no-edit {alias} {branch}
         alias = repo.replace("/", "-")
 
         for branch in get_branches(dir):
-            if branch != "master":
+            if branch != "main":
                 continue
-            if branch == "master":
-                monobranch = "master"
+            if branch == "main":
+                monobranch = "main"
             else:
                 monobranch = "{alias}-{branch}".format(alias=alias, branch=branch)
             yield cmd.format(branch=branch, monobranch=monobranch, monorepo=monorepo, alias=alias, repo_root=repo_root, prefix=repo, subdir=subdir, dir=dir, repo=repo)
